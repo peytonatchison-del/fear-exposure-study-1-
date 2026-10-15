@@ -1,0 +1,1158 @@
+:root {
+  color-scheme: light;
+  --bg: #f6f8f9;
+  --surface: #ffffff;
+  --surface-2: #eef4f4;
+  --border: #dde5e6;
+  --text-primary: #16232b;
+  --text-secondary: #52626b;
+  --text-muted: #7c8b92;
+  --accent: #2a78d6;
+  --accent-dark: #184f95;
+  --accent-soft: #dfeaf9;
+  --calm-teal: #1baf7a;
+  --calm-teal-soft: #dff3ec;
+  --warning-bg: #fff4e5;
+  --warning-border: #f0c988;
+  --warning-text: #7a5200;
+  --danger: #d03b3b;
+  --danger-bg: #fdecec;
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(22, 35, 43, 0.06);
+  --focus-ring: 0 0 0 3px rgba(42, 120, 214, 0.35);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+#root { display: flex; flex-direction: column; min-height: 100vh; }
+
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.app-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px 100px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-header__title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent-dark);
+}
+
+.help-button {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #f3caca;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.help-button:hover { background: #fbdada; }
+
+.progress-bar {
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 4px 0 28px;
+}
+.progress-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--calm-teal));
+  transition: width 0.3s ease;
+}
+.progress-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+h1.screen-title {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+h2.section-title {
+  font-size: 1.15rem;
+  margin: 28px 0 12px;
+  color: var(--text-primary);
+}
+p.lead {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin: 0 0 20px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-weight: 600;
+  font-size: 1.02rem;
+  transition: transform 0.05s ease, background 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+
+.btn-secondary { background: var(--surface-2); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover:not(:disabled) { background: #e3ecec; }
+
+.btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #f3caca; }
+
+.btn-row { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+@media (min-width: 480px) {
+  .btn-row.horizontal { flex-direction: row; }
+}
+
+.disclaimer-banner {
+  background: var(--accent-soft);
+  border: 1px solid #c4dcf5;
+  color: var(--accent-dark);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 0.92rem;
+  margin-bottom: 20px;
+}
+
+.demo-banner {
+  background: #fef7e0;
+  border: 1px solid #f2dc8f;
+  color: #7a5f00;
+  text-align: center;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.warning-banner {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.category-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 18px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.05rem;
+  box-shadow: var(--shadow);
+}
+.category-card:hover { border-color: var(--accent); }
+.category-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+.category-card__desc { font-weight: 400; font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; }
+
+.slider-block { margin-bottom: 28px; }
+.slider-block__question { font-weight: 600; margin-bottom: 10px; display: block; }
+.slider-block__value { color: var(--accent-dark); font-weight: 700; }
+.slider-endpoints { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+
+.slider-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.slider-block__header .slider-block__question { margin-bottom: 0; }
+.slider-block__value-badge {
+  flex-shrink: 0;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+
+.slider-block__input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0%,
+    var(--accent) var(--fill-percent, 0%),
+    var(--border) var(--fill-percent, 0%),
+    var(--border) 100%
+  );
+  outline: none;
+  margin: 6px 0;
+  cursor: pointer;
+}
+.slider-block__input::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: transparent;
+}
+.slider-block__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--accent-dark, var(--accent));
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.slider-block__input::-webkit-slider-thumb:hover { transform: scale(1.1); }
+.slider-block__input::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+}
+.slider-block__input::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.slider-block__input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-dark, var(--accent));
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.slider-block__ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-top: 6px;
+}
+.slider-block__tick {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 20px;
+  text-align: center;
+}
+.slider-block__tick.is-active {
+  color: var(--accent-dark, var(--accent));
+  font-weight: 700;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  height: 28px;
+}
+
+textarea, input[type="text"], input[type="password"], input[type="date"], select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  /* 1rem = the body's 17px, kept here (rather than a smaller size some
+     browsers default <select>/date inputs to) so none of these trigger
+     iOS Safari's zoom-on-focus, which only fires under 16px. */
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-primary);
+  /* Without a set min-height, native date pickers and selects render a bit
+     shorter than text inputs on some mobile browsers — a touch target
+     under ~44px is harder to tap accurately on a phone. */
+  min-height: 44px;
+}
+textarea { min-height: 90px; resize: vertical; }
+select { cursor: pointer; }
+label.field-label { display: block; font-weight: 600; margin-bottom: 6px; }
+.field-block { margin-bottom: 20px; }
+
+.code-display {
+  font-size: 2rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-align: center;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin: 20px 0;
+  color: var(--accent-dark);
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.mode-toggle button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.mode-toggle button.active { background: var(--surface); color: var(--accent-dark); box-shadow: var(--shadow); }
+
+.stimulus-frame {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  margin: 20px 0;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stimulus-frame img, .stimulus-frame video { max-width: 100%; max-height: 340px; border-radius: 10px; }
+.stimulus-placeholder-text { font-style: italic; color: var(--text-secondary); font-size: 1.05rem; }
+
+.timer-ring { font-size: 2.2rem; font-weight: 700; color: var(--accent-dark); text-align: center; margin: 12px 0; }
+
+/* Interactive simulated-portal stimulus (e.g. AdmissionsPortalSim) */
+.sim-portal { width: 100%; text-align: left; }
+.sim-portal-disclaimer {
+  text-align: center;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.sim-portal-window {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.sim-portal-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  color: #fff;
+}
+.sim-portal-brand { display: flex; align-items: center; gap: 10px; }
+.sim-portal-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+.sim-portal-brand-name { font-weight: 700; font-size: 0.95rem; }
+.sim-portal-brand-sub { font-size: 0.72rem; opacity: 0.85; }
+.sim-portal-user { font-size: 0.78rem; opacity: 0.85; white-space: nowrap; }
+
+.sim-portal-body { padding: 18px; text-align: left; }
+.sim-portal-section-title { margin: 0 0 12px; font-size: 1rem; color: var(--text-primary); }
+
+.sim-portal-message-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--accent-soft);
+  border: 1px solid #c4dcf5;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+.sim-portal-message-row:hover { background: #cfe3fa; }
+.sim-portal-unread-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.sim-portal-message-summary { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.sim-portal-message-subject { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; }
+.sim-portal-message-preview { font-size: 0.82rem; color: var(--text-secondary); }
+.sim-portal-new-badge {
+  flex-shrink: 0;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.sim-portal-hint { font-size: 0.82rem; color: var(--text-muted); margin: 12px 0 0; }
+.sim-portal-message-row:disabled { opacity: 0.55; cursor: default; }
+.sim-portal-message-row:disabled:hover { background: var(--accent-soft); }
+
+/* College Admissions Session 3 — admissions email that opens into an
+   envelope, revealing a researcher-uploaded rejection letter
+   (CollegeAdmissionsRejectionEmailSim). */
+.sim-envelope-stage { display: flex; flex-direction: column; align-items: center; padding: 24px 10px 6px; }
+.sim-envelope-wrap { position: relative; width: 220px; height: 150px; cursor: pointer; }
+.sim-envelope-wrap.is-locked { cursor: default; }
+.sim-envelope-body {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--accent-soft), var(--surface));
+  border: 1px solid #c4dcf5;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.sim-envelope-wrap.is-locked .sim-envelope-body { opacity: 0.7; }
+.sim-envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 62%;
+  background: var(--accent);
+  opacity: 0.92;
+  clip-path: polygon(0 0, 100% 0, 50% 82%);
+  border-radius: 10px 10px 0 0;
+}
+.sim-envelope-seal {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5) inset;
+  z-index: 1;
+}
+.sim-envelope-wrap.is-opening .sim-envelope-body,
+.sim-envelope-wrap.is-open .sim-envelope-body {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.94);
+  pointer-events: none;
+}
+.sim-letter-peek {
+  position: absolute;
+  inset: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(14px) scale(0.94);
+  transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+}
+.sim-envelope-wrap.is-opening .sim-letter-peek,
+.sim-envelope-wrap.is-open .sim-letter-peek {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.sim-letter-card {
+  margin-top: 18px;
+  /* Fills the same width every other stimulus card in the app uses (e.g.
+     .sim-portal-window) on narrow/phone screens, so the letter is never
+     capped down to a tiny fixed column there. On wider screens the letter
+     IMAGE itself (not this card) is capped at a natural-looking size below —
+     stretching a portrait screenshot all the way out to a wide desktop
+     card's full width upscaled it well past its real resolution, which is
+     what made it look blurry/distorted ("smushed") rather than just bigger. */
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  text-align: center;
+  animation: sim-letter-fade-in 0.5s ease;
+}
+@keyframes sim-letter-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sim-letter-image {
+  width: 100%;
+  height: auto;
+  /* Caps how wide the letter is ever displayed, even inside a much wider
+     card, so it scales up to a comfortably readable size without being
+     stretched past its native resolution (which read as "smushed"/blurry
+     on larger screens). On a phone, the card itself is already narrower
+     than this, so the image still simply fills the available width there. */
+  max-width: 480px;
+  border-radius: 6px;
+  display: block;
+  margin: 0 auto;
+}
+.sim-letter-placeholder {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 30px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.sim-portal-back {
+  background: none;
+  border: none;
+  color: var(--accent-dark);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.sim-portal-message-meta { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; }
+.sim-portal-message-body { color: var(--text-primary); margin: 0 0 18px; }
+.sim-portal-decision-btn { width: auto; }
+
+/* Fictional tuition/financial-aid balance table (FinancialAidEmailSim) */
+.sim-balance-table {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 6px 16px;
+}
+.sim-balance-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+.sim-balance-row:last-child { border-bottom: none; }
+.sim-balance-row--total { font-weight: 700; color: var(--accent-dark); }
+
+/* Interactive group-chat stimulus (TextThreadSim) */
+.sim-chat-window {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+.sim-chat-header {
+  padding: 14px 18px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.sim-chat-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+  max-height: 360px;
+  overflow-y: auto;
+  text-align: left;
+}
+.sim-chat-row { display: flex; flex-direction: column; max-width: 78%; }
+.sim-chat-row.them { align-items: flex-start; align-self: flex-start; }
+.sim-chat-row.me { align-items: flex-end; align-self: flex-end; }
+.sim-chat-sender { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px; padding-left: 4px; }
+.sim-chat-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.sim-chat-row.them .sim-chat-bubble { background: var(--surface-2); color: var(--text-primary); border-bottom-left-radius: 4px; }
+.sim-chat-row.me .sim-chat-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.sim-chat-typing { display: flex; gap: 4px; padding: 14px; }
+.sim-chat-typing span {
+  width: 6px; height: 6px; border-radius: 999px; background: var(--text-muted);
+  animation: sim-chat-typing-bounce 1s infinite ease-in-out;
+}
+.sim-chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.sim-chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes sim-chat-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.sim-chat-composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.sim-chat-composer input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.sim-chat-composer--continue { flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.sim-chat-send-btn { width: auto; padding: 10px 20px; }
+
+/* Public Speaking category — narrative intro (Session 1). */
+.sim-narrative-window {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+  text-align: center;
+}
+.sim-narrative-text {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0 0 18px;
+}
+
+/* Public Speaking category — simulated classroom audience (Sessions 2 & 3). */
+.sim-audience {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.sim-audience--large { gap: 6px; padding: 12px; }
+.sim-audience-person { display: flex; flex-direction: column; align-items: center; opacity: 0.9; }
+.sim-audience--small .sim-audience-person { transform: scale(1); }
+.sim-audience--large .sim-audience-person { transform: scale(0.72); }
+.sim-audience-head {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
+}
+.sim-audience-body {
+  width: 34px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 10px 10px 0 0;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+}
+
+.sim-readaloud-window {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  text-align: left;
+}
+.sim-readaloud-timerbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.sim-readaloud-timer {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  font-variant-numeric: tabular-nums;
+}
+.sim-readaloud-extend { width: auto; padding: 8px 16px; }
+.sim-readaloud-passage {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 0;
+}
+
+/* Session 4 — teleprompter: one sentence at a time, in a plain box, when no
+   audience video is set (the video case uses .sim-teleprompter-sentence's
+   sibling, the shared .sim-video-caption-bar below). */
+.sim-teleprompter-sentence {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 0;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+}
+
+/* Public Speaking category — own response on camera. */
+.sim-response-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 0 0 16px;
+}
+.sim-response-selfview {
+  width: 100%;
+  max-width: 320px;
+  display: block;
+  margin: 0 auto 14px;
+  border-radius: 10px;
+  background: #10202c;
+  /* mirror, like looking in a mirror/most camera apps — translateZ(0) +
+     backface-visibility force this onto its own GPU layer, which stops
+     mobile browsers from re-compositing (and visibly glitching) the mirrored
+     video every time the page scrolls. */
+  transform: scaleX(-1) translateZ(0);
+  -webkit-transform: scaleX(-1) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.sim-mic-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 60px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+.sim-mic-bar {
+  width: 6px;
+  min-height: 4px;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: height 0.08s ease-out;
+}
+.sim-record-btn { width: auto; padding: 12px 28px; font-size: 1.05rem; }
+.sim-countdown-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 4px;
+}
+.sim-countdown-circle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  border: 4px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.2rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+.sim-countdown-wrap--small { padding: 4px 0; }
+.sim-countdown-circle--small {
+  width: 84px;
+  height: 84px;
+  font-size: 1.8rem;
+}
+/* Session 4's "just the question" think screen — no heading, no hint text,
+   nothing but the question itself. */
+.sim-question-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+}
+/* Session 4's recording screen — a small broadcast-style frame (self-view
+   video with a pulsing LIVE badge and a fake viewer count overlaid on top
+   corners), the mic-level meter below it, and a small circular countdown. */
+.sim-live-frame {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #10202c;
+  transform: translateZ(0);
+}
+.sim-live-video {
+  display: block;
+  width: 100%;
+  /* See .sim-response-selfview above — same GPU-layer fix so the live
+     preview doesn't glitch while the page scrolls. */
+  transform: scaleX(-1) translateZ(0);
+  -webkit-transform: scaleX(-1) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.sim-live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.sim-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: sim-live-blink 1.1s ease-in-out infinite;
+}
+@keyframes sim-live-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.sim-live-viewers-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.sim-recording-indicator {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--danger);
+  margin: 10px 0 0;
+}
+
+/* Sessions 3-4's researcher-uploaded class video, used in place of the
+   illustrated audience. The video plays at full brightness — no dark
+   gradient across it — with just a slim, subtitle-style caption bar pinned
+   to the bottom holding the passage/sentence text. The credit line lives
+   outside the frame entirely (small, muted, tucked below) rather than
+   competing with the video or the text. */
+.sim-video-overlay-frame {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  background: #10202c;
+}
+.sim-video-overlay-frame--tall { min-height: 380px; }
+.sim-audience-video--overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sim-video-caption-bar {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  max-height: 50%;
+  overflow-y: auto;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(4, 12, 18, 0.6);
+}
+/* Session 2's variant: pinned to the top instead of the bottom, and
+   clamped to roughly 3 lines (still scrollable for the rest of the
+   passage) so it never covers people's faces lower in the frame. */
+.sim-video-caption-bar--top {
+  top: 12px;
+  bottom: auto;
+  max-height: 4.8em;
+}
+/* Sits below the video frame, in normal document flow — NOT overlaid on the
+   video or the caption box, since an earlier overlaid version ended up
+   covering part of the script text it was meant to point at. */
+.sim-video-scroll-hint {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.sim-video-caption-title {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+}
+.sim-video-caption-text {
+  margin: 0;
+  color: #fdfefe;
+  font-size: 1rem;
+  line-height: 1.55;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+.sim-video-credit-footer {
+  margin: 0 0 14px;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Test-Taking category — multiple-choice/written quizzes shared by the
+   easy/moderate/difficult sessions (see QuizQuestion.jsx and the
+   TestAnxiety*Sim.jsx components). */
+.sim-quiz-list { display: flex; flex-direction: column; gap: 22px; }
+.sim-quiz-question-text {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0 0 10px;
+}
+.sim-quiz-question-number { color: var(--accent-dark); margin-right: 2px; }
+.sim-quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.sim-quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.sim-quiz-option:hover:not(:disabled) { border-color: var(--accent); }
+.sim-quiz-option.is-selected { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.sim-quiz-option:disabled { cursor: default; opacity: 0.7; }
+.sim-quiz-option-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.sim-quiz-option.is-selected .sim-quiz-option-dot { border-color: var(--accent); background: var(--accent); }
+.sim-quiz-written textarea { min-height: 68px; }
+
+/* Sticky so the countdown stays visible while the participant scrolls down
+   through the question list — pinned just below the app's own sticky
+   header (see .app-header, which sits at top:0). */
+.sim-quiz-timerbar {
+  position: sticky;
+  top: 56px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+.sim-quiz-timerbar.is-urgent { border-color: var(--danger); }
+.sim-quiz-timer { font-size: 1.3rem; font-weight: 700; color: var(--accent-dark); font-variant-numeric: tabular-nums; }
+.sim-quiz-timer.is-urgent { color: var(--danger); }
+.sim-quiz-extend { width: auto; padding: 6px 14px; font-size: 0.85rem; }
+
+.sim-quiz-essay-window {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+}
+.sim-quiz-essay-paragraph {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+  margin: 0 0 14px;
+}
+.sim-quiz-essay-paragraph:last-of-type { margin-bottom: 20px; }
+
+.sim-gradebook-window {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 28px 20px;
+  text-align: center;
+}
+.sim-gradebook-score { font-size: 3rem; font-weight: 800; color: var(--accent-dark); margin: 4px 0 4px; }
+.sim-gradebook-note { font-size: 0.78rem; font-style: italic; color: var(--text-muted); margin: 0 0 14px; }
+.sim-gradebook-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-align: left;
+}
+.sim-gradebook-row:last-of-type { border-bottom: none; }
+
+/* Traditional click-table for the standardized questionnaire (GAD-7) —
+   replaces plain sliders with rows of question text and clickable circular
+   radio cells across the 4 standard frequency options. */
+.qtable-wrap { overflow-x: auto; margin: 4px 0 20px; }
+.qtable { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.qtable th,
+.qtable td {
+  padding: 10px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.qtable-qcol { min-width: 40px; }
+.qtable-opt-head { color: var(--text-secondary); font-weight: 600; min-width: 92px; }
+.qtable-qtext { text-align: left; color: var(--text-primary); font-weight: 500; padding-right: 16px; min-width: 200px; }
+.qtable-cell { vertical-align: middle; }
+.qtable-radio {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.qtable-radio:hover { border-color: var(--accent); }
+.qtable-radio.is-selected { border-color: var(--accent); background: var(--accent); }
+.qtable-radio-dot { width: 10px; height: 10px; border-radius: 50%; background: transparent; }
+.qtable-radio.is-selected .qtable-radio-dot { background: #fff; }
+
+.error-text { color: var(--danger); font-size: 0.9rem; margin-top: 6px; }
+
+.centered-message { text-align: center; padding: 40px 10px; }
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.badge-demo { background: #fef7e0; color: #7a5f00; }
+.badge-real { background: var(--calm-teal-soft); color: #0b5d3f; }
+.badge-active { background: var(--calm-teal-soft); color: #0b5d3f; }
+.badge-blocked { background: var(--danger-bg); color: var(--danger); }
+
+.researcher-entry-row {
+  text-align: center;
+  margin-top: 18px;
+}
+.researcher-entry-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  padding: 6px;
+}
+.researcher-entry-link:hover { color: var(--text-secondary); }
+
+.footer-note {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin-top: 28px;
+}

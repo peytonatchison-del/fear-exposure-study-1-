@@ -1,0 +1,9 @@
+node_modules/
+server/data/*.sqlite
+server/data/*.sqlite-journal
+server/uploads/stimuli/**
+!server/uploads/stimuli/.gitkeep
+server/.env
+client/dist/
+.DS_Store
+*.log
