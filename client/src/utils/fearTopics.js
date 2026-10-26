@@ -11,7 +11,7 @@ const FEAR_TOPIC_PHRASES = {
   dogs: 'dogs',
   public_speaking: 'public speaking',
   flying: 'flying',
-  college_admissions: 'college admissions',
+  college_admissions: 'applying for a job',
   test_anxiety: 'taking tests',
 };
 

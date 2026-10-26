@@ -54,14 +54,20 @@ export default function EmergencyHelp() {
         </p>
 
         {!withdrawn ? (
-          <div className="btn-row">
-            <button className="btn btn-danger" disabled={withdrawing} onClick={handleWithdraw}>
-              {withdrawing ? 'Stopping…' : 'Stop the Study Now'}
-            </button>
-            <button className="btn btn-secondary" onClick={() => navigate(-1)}>
-              Go Back
-            </button>
-          </div>
+          <>
+            <div className="critical-banner">
+              <strong>Before you stop:</strong> this will permanently end your participation in this study. Once you
+              stop, you will not be able to re-enter or resume &mdash; this cannot be undone.
+            </div>
+            <div className="btn-row">
+              <button className="btn btn-danger" disabled={withdrawing} onClick={handleWithdraw}>
+                {withdrawing ? 'Stopping…' : 'Stop the Study Now'}
+              </button>
+              <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+                Go Back
+              </button>
+            </div>
+          </>
         ) : (
           <div className="btn-row">
             <p>You have stopped the study. Thank you for participating in whatever part you completed.</p>

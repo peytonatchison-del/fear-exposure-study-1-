@@ -83,12 +83,13 @@ export default function Baseline() {
                 <p className="lead" style={{ fontSize: '0.85rem', margin: '-6px 0 0' }}>
                   You can still come back and continue later if you choose.
                 </p>
+                <div className="critical-banner">
+                  <strong>Before you stop:</strong> this will permanently end your participation in this study. Once
+                  you stop, you will not be able to re-enter or resume &mdash; this cannot be undone.
+                </div>
                 <button className="btn btn-danger" disabled={stopping} onClick={handleStop}>
                   {stopping ? 'Stopping…' : 'Stop the Study'}
                 </button>
-                <p className="lead" style={{ fontSize: '0.85rem', margin: '-6px 0 0' }}>
-                  If you stop, you will not be permitted to re-enter the study.
-                </p>
               </div>
             </>
           )}

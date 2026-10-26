@@ -92,6 +92,7 @@ function serialize(row) {
     audienceVideoUrl: row.audience_video_path || null,
     audienceVideoCredit: row.audience_video_credit || null,
     rejectionLetterUrl: row.rejection_letter_path || null,
+    interviewVideoUrl: row.interview_video_path || null,
     isDemo: !!row.is_demo,
     updatedAt: row.updated_at,
   };
@@ -244,6 +245,42 @@ router.delete('/researcher/stimuli/:id/rejection-letter', (req, res) => {
   res.json({ ok: true });
 });
 
+// Upload/replace the researcher's own fake interview video, used as the main
+// scene for the Applying for a Job Session 4 live-interview simulation (the
+// participant's own camera appears over it as a picture-in-picture box — see
+// JobApplicationLiveInterviewSim.jsx). Stored in a separate column, same
+// pattern as the audience-video and rejection-letter routes above. Uses the
+// permissive videoUpload instance (any video/* mimetype, up to 500MB) since
+// real interview-style footage rarely matches the stricter image+video
+// allowlist used for exposure stimuli.
+router.post('/researcher/stimuli/:id/interview-video', videoUpload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+  const row = db.prepare('SELECT * FROM stimuli WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Stimulus not found.' });
+  // Remove any previous interview video for this stimulus before saving the new path.
+  if (row.interview_video_path && row.interview_video_path.startsWith('/uploads/')) {
+    fs.rm(path.join(UPLOADS_DIR, row.interview_video_path.replace(/^\/uploads\//, '')), { force: true }, () => {});
+  }
+  const relPath = `/uploads/stimuli/${path.basename(path.dirname(req.file.path))}/${req.file.filename}`;
+  db.prepare(`UPDATE stimuli SET interview_video_path = ?, updated_at = datetime('now') WHERE id = ?`).run(
+    relPath,
+    req.params.id
+  );
+  res.json({ ok: true, path: relPath });
+});
+
+router.delete('/researcher/stimuli/:id/interview-video', (req, res) => {
+  const row = db.prepare('SELECT * FROM stimuli WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Stimulus not found.' });
+  if (row.interview_video_path && row.interview_video_path.startsWith('/uploads/')) {
+    fs.rm(path.join(UPLOADS_DIR, row.interview_video_path.replace(/^\/uploads\//, '')), { force: true }, () => {});
+  }
+  db.prepare(`UPDATE stimuli SET interview_video_path = NULL, updated_at = datetime('now') WHERE id = ?`).run(
+    req.params.id
+  );
+  res.json({ ok: true });
+});
+
 router.delete('/researcher/stimuli/:id', (req, res) => {
   const row = db.prepare('SELECT * FROM stimuli WHERE id = ?').get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Stimulus not found.' });
@@ -270,6 +307,9 @@ router.delete('/researcher/stimuli/:id', (req, res) => {
   }
   if (row.rejection_letter_path && row.rejection_letter_path.startsWith('/uploads/')) {
     fs.rm(path.join(UPLOADS_DIR, row.rejection_letter_path.replace(/^\/uploads\//, '')), { force: true }, () => {});
+  }
+  if (row.interview_video_path && row.interview_video_path.startsWith('/uploads/')) {
+    fs.rm(path.join(UPLOADS_DIR, row.interview_video_path.replace(/^\/uploads\//, '')), { force: true }, () => {});
   }
   res.json({ ok: true });
 });

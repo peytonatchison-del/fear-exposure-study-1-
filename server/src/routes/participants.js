@@ -23,11 +23,6 @@ router.post('/participants', (req, res) => {
   const isDemo = demo ? 1 : 0;
   const settings = getConfig('study_settings') || {};
 
-  if (!isDemo && (process.env.APP_MODE || 'demo') !== 'real') {
-    return res.status(403).json({
-      error: 'Real-participant data collection is not enabled on this server. It is currently running in DEMO mode.',
-    });
-  }
   if (!isDemo && !settings.irbApproved) {
     return res.status(403).json({
       error: 'Real-participant data collection is blocked until the researcher completes the IRB checklist in the dashboard.',

@@ -50,7 +50,7 @@ export default function IrbChecklist() {
 
       <div className={settings.irbApproved ? 'disclaimer-banner' : 'warning-banner'}>
         {settings.irbApproved
-          ? 'Status: IRB checklist complete. Real-participant data collection is enabled (server must also be running with APP_MODE=real).'
+          ? 'Status: IRB checklist complete. Real-participant data collection is enabled.'
           : 'Status: Real-participant data collection is BLOCKED until this checklist is complete.'}
       </div>
 

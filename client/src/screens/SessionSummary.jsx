@@ -24,8 +24,8 @@ const CATEGORY_ADVICE = {
     'Before your next session, try watching a short real takeoff/landing video or visiting an airport-adjacent ' +
     'space if one is nearby, and notice how your anxiety moves as the material gets more “real.”',
   college_admissions:
-    'Before your next session, try noticing when thoughts about admissions decisions, tuition, or your friends’ ' +
-    'plans come up during your day, you don’t have to act on them, just notice when they show up and how ' +
+    'Before your next session, try noticing when thoughts about job applications, interviews, or being evaluated ' +
+    'at work come up during your day, you don’t have to act on them, just notice when they show up and how ' +
     'intense they feel.',
   test_anxiety:
     'Before your next session, try noticing how you feel the next time a low-stakes quiz, pop quiz, or graded ' +

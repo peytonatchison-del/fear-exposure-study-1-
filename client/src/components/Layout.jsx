@@ -36,9 +36,14 @@ export default function Layout({ children, hideProgress = false, hideHelp = fals
       <header className="app-header">
         <span className="app-header__title">Online Fear Exposure Research Study</span>
         {!hideHelp && (
-          <Link to="/help" className="help-button">
-            Need help / Stop
-          </Link>
+          <div className="header-actions">
+            <Link to="/pause" className="pause-button">
+              Pause
+            </Link>
+            <Link to="/help" className="help-button">
+              Need help / Stop
+            </Link>
+          </div>
         )}
       </header>
       <main className="app-shell">

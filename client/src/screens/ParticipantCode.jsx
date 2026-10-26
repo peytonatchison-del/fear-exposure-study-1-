@@ -105,9 +105,11 @@ export default function ParticipantCode() {
             ) : (
               <>
                 <div className="code-display">{generatedCode}</div>
-                <p className="lead" style={{ fontSize: '0.95rem' }}>
-                  Write this code down now. Type it below to confirm you've saved it, then continue.
-                </p>
+                <div className="critical-banner">
+                  <strong>WRITE THIS CODE DOWN RIGHT NOW.</strong> There is no way to look it up or recover it for
+                  you later &mdash; if you lose it, it is gone for good and you will not be able to return to this
+                  study. Type it into the box below to confirm you've saved it before continuing.
+                </div>
                 <div className="field-block">
                   <label className="field-label" htmlFor="confirm-code">
                     Re-type your study code

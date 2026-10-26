@@ -77,6 +77,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   color: var(--accent-dark);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .help-button {
   background: var(--danger-bg);
   color: var(--danger);
@@ -88,6 +94,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   white-space: nowrap;
 }
 .help-button:hover { background: #fbdada; }
+
+.pause-button {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.pause-button:hover { background: #e3ecec; }
 
 .progress-bar {
   height: 6px;
@@ -189,6 +207,21 @@ p.lead {
   padding: 16px 18px;
   font-size: 0.95rem;
   margin-bottom: 20px;
+}
+
+/* Reserved for the handful of messages that must not be missed: losing a
+   study code, or permanently ending participation. Bolder and more heavily
+   bordered than .warning-banner on purpose. */
+.critical-banner {
+  background: var(--danger-bg);
+  border: 2px solid var(--danger);
+  color: var(--danger);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 14px 0 20px;
 }
 
 .category-grid {
@@ -904,6 +937,52 @@ label.field-label { display: block; font-weight: 600; margin-bottom: 6px; }
   font-weight: 700;
   padding: 4px 9px;
   border-radius: 999px;
+}
+
+/* Applying for a Job, Session 4 — the live-interview stage: a researcher-
+   uploaded interviewer video (or a placeholder note if none has been
+   uploaded yet) with the participant's own camera as a small
+   picture-in-picture box in the upper-right corner, and the current
+   question captioned at the bottom (reusing .sim-video-caption-bar). */
+.sim-interview-stage {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  background: #10202c;
+  display: flex;
+  align-items: center;
+}
+.sim-interview-video {
+  display: block;
+  width: 100%;
+}
+.sim-interview-pip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  background: #10202c;
+  transform: translateZ(0);
+}
+.sim-interview-pip video {
+  display: block;
+  width: 100%;
+  /* Mirror, like looking in a mirror — same GPU-layer fix as
+     .sim-response-selfview so it doesn't glitch while the page scrolls. */
+  transform: scaleX(-1) translateZ(0);
+  -webkit-transform: scaleX(-1) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+@media (min-width: 480px) {
+  .sim-interview-pip { width: 120px; }
 }
 .sim-recording-indicator {
   text-align: center;

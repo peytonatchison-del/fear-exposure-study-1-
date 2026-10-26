@@ -8,23 +8,43 @@ const LEVELS = [1, 2, 3, 4, 5];
 // participant-facing SIMULATIONS map in ExposureSession.jsx.
 const SIMULATIONS = [
   {
+    value: 'job_application_narrative_intro',
+    label: 'Applying for a Job — Narrative Intro (5-slide story building up to a job application, 10s wait per slide)',
+  },
+  {
+    value: 'job_application_resume_form',
+    label:
+      'Applying for a Job — Résumé Form (5 open-ended questions: objective, education, skills, experience, achievements; 2:30 countdown, must answer all to continue)',
+  },
+  {
+    value: 'job_application_offer_negotiation',
+    label:
+      'Applying for a Job — Offer & Negotiation (fake interview-offer email → draft a counter-offer email asking for $90,000 → employer meets in the middle at $85,000)',
+  },
+  {
+    value: 'job_application_live_interview',
+    label:
+      'Applying for a Job — Live Interview (researcher-uploaded interviewer video + participant camera picture-in-picture, 3 questions at 30s each)',
+  },
+  {
     value: 'college_admissions_narrative_intro',
-    label: 'College Admissions — Narrative Intro (5-slide story building up to checking a decision, 10s wait per slide)',
+    label:
+      'College Admissions — Narrative Intro (5-slide story building up to checking a decision, 10s wait per slide) — legacy, replaced by the Applying for a Job simulations above',
   },
   {
     value: 'college_friend_group_chat',
     label:
-      'Friend Group Text Thread — Community College Announcement (animated group chat — a friend announces he\'s going to community college instead of UF)',
+      'Friend Group Text Thread — Community College Announcement (animated group chat — a friend announces he\'s going to community college instead of UF) — legacy, not used by the default schedule',
   },
   {
     value: 'college_admissions_rejection_email',
     label:
-      'Admissions Email + Rejection Letter (fake email opens into an envelope, revealing a rejection letter you upload yourself below)',
+      'Admissions Email + Rejection Letter (fake email opens into an envelope, revealing a rejection letter you upload yourself below) — legacy, replaced by the Applying for a Job simulations above',
   },
   {
     value: 'college_friend_group_chat_rejection',
     label:
-      'Friend Group Text Thread — Rejection Reaction (animated group chat — you tell your friends you didn\'t get in, and talk through your backup plan)',
+      'Friend Group Text Thread — Rejection Reaction (animated group chat — you tell your friends you didn\'t get in, and talk through your backup plan) — legacy, not used by the default schedule',
   },
   {
     value: 'financial_aid_status_uf',
@@ -83,6 +103,12 @@ const AUDIENCE_VIDEO_SIMULATIONS = ['public_speaking_audience_readaloud', 'publi
 // audience-video upload above.
 const REJECTION_LETTER_SIMULATIONS = ['college_admissions_rejection_email'];
 
+// Applying for a Job Session 4's live-interview simulation shows a
+// researcher-uploaded "interviewer" video (with the participant's own camera
+// as a picture-in-picture overlay) instead of anything the app generates —
+// same upload-your-own-media idea as the two lists above.
+const INTERVIEW_VIDEO_SIMULATIONS = ['job_application_live_interview'];
+
 export default function Stimuli() {
   const [categories, setCategories] = useState([]);
   const [stimuli, setStimuli] = useState([]);
@@ -99,6 +125,10 @@ export default function Stimuli() {
   const [rejectionLetterFile, setRejectionLetterFile] = useState(null);
   const [rejectionLetterStatus, setRejectionLetterStatus] = useState('');
   const [uploadingLetter, setUploadingLetter] = useState(false);
+  const [interviewVideoFile, setInterviewVideoFile] = useState(null);
+  const [interviewVideoStatus, setInterviewVideoStatus] = useState('');
+  const [uploadingInterviewVideo, setUploadingInterviewVideo] = useState(false);
+  const [interviewVideoProgress, setInterviewVideoProgress] = useState(0);
 
   async function load() {
     const [protocol, stimuliList] = await Promise.all([api.getFullProtocol(), api.getStimuli()]);
@@ -135,6 +165,10 @@ export default function Stimuli() {
     setRejectionLetterFile(null);
     setRejectionLetterStatus('');
     setUploadingLetter(false);
+    setInterviewVideoFile(null);
+    setInterviewVideoStatus('');
+    setUploadingInterviewVideo(false);
+    setInterviewVideoProgress(0);
   }
 
   async function handleSave() {
@@ -258,6 +292,45 @@ export default function Stimuli() {
     try {
       await api.clearRejectionLetter(stimulusId);
       setRejectionLetterStatus('Rejection letter removed.');
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleUploadInterviewVideo(stimulusId) {
+    setError('');
+    setInterviewVideoStatus('');
+    if (!interviewVideoFile) {
+      setError('Choose a video file first.');
+      return;
+    }
+    if (!stimulusId) {
+      setError('Could not find this stimulus to attach the video to — try closing and reopening the editor.');
+      return;
+    }
+    setUploadingInterviewVideo(true);
+    setInterviewVideoProgress(0);
+    try {
+      const fd = new FormData();
+      fd.append('file', interviewVideoFile);
+      await api.uploadInterviewVideoWithProgress(stimulusId, fd, setInterviewVideoProgress);
+      setInterviewVideoFile(null);
+      setInterviewVideoStatus('Interview video uploaded.');
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingInterviewVideo(false);
+    }
+  }
+
+  async function handleClearInterviewVideo(stimulusId) {
+    setError('');
+    setInterviewVideoStatus('');
+    try {
+      await api.clearInterviewVideo(stimulusId);
+      setInterviewVideoStatus('Interview video removed.');
       await load();
     } catch (err) {
       setError(err.message);
@@ -455,6 +528,54 @@ export default function Stimuli() {
                     )}
                   </div>
                   {rejectionLetterStatus && <p style={{ color: 'var(--calm-teal)', marginTop: 8 }}>{rejectionLetterStatus}</p>}
+                </div>
+              )}
+
+              {INTERVIEW_VIDEO_SIMULATIONS.includes(form.content) && (
+                <div className="field-block" style={{ marginTop: 16 }}>
+                  <label className="field-label">Interviewer video (upload required for this stimulus)</label>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 8 }}>
+                    This scenario never generates an interviewer on its own — upload a video of someone asking
+                    interview questions (a real recording, or even a webcam clip of a researcher reading them) for
+                    the participant to respond to. The participant's own camera appears in a small picture-in-picture
+                    box over the top-right corner while they answer. Any video format is accepted, up to 500MB.{' '}
+                    {findStimulus(editing.categoryId, editing.level)?.interviewVideoUrl
+                      ? 'A video is currently set for this session.'
+                      : 'No video uploaded yet — participants will currently see a placeholder note instead of an interviewer.'}
+                  </p>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    disabled={uploadingInterviewVideo}
+                    onChange={(e) => setInterviewVideoFile(e.target.files[0])}
+                  />
+                  <div className="rd-row" style={{ marginTop: 8 }}>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ width: 'auto' }}
+                      disabled={uploadingInterviewVideo}
+                      onClick={() => handleUploadInterviewVideo(findStimulus(editing.categoryId, editing.level)?.id)}
+                    >
+                      {uploadingInterviewVideo ? `Uploading… ${interviewVideoProgress}%` : 'Upload Video'}
+                    </button>
+                    {findStimulus(editing.categoryId, editing.level)?.interviewVideoUrl && (
+                      <button
+                        className="btn btn-danger"
+                        style={{ width: 'auto' }}
+                        disabled={uploadingInterviewVideo}
+                        onClick={() => handleClearInterviewVideo(findStimulus(editing.categoryId, editing.level)?.id)}
+                      >
+                        Remove Video
+                      </button>
+                    )}
+                  </div>
+                  {uploadingInterviewVideo && (
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 6 }}>
+                      Large videos can take a while, especially on a slower connection — keep this tab open until it
+                      reaches 100%.
+                    </p>
+                  )}
+                  {interviewVideoStatus && <p style={{ color: 'var(--calm-teal)', marginTop: 8 }}>{interviewVideoStatus}</p>}
                 </div>
               )}
             </div>

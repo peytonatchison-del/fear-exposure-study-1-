@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db, getConfig } from '../db/index.js';
+import { db, getConfig, getAppMode } from '../db/index.js';
 
 const router = Router();
 
@@ -12,7 +12,7 @@ router.get('/protocol', (req, res) => {
   const questionnaireItems = (getConfig('questionnaire_items') || []).filter((q) => q.active);
   const settings = getConfig('study_settings') || {};
   res.json({
-    appMode: process.env.APP_MODE || 'demo',
+    appMode: getAppMode(),
     categories,
     questionnaireItems,
     numSessions: settings.numSessions,
@@ -27,7 +27,7 @@ router.get('/protocol', (req, res) => {
 
 router.get('/app-mode', (req, res) => {
   const settings = getConfig('study_settings') || {};
-  res.json({ appMode: process.env.APP_MODE || 'demo', irbApproved: !!settings.irbApproved });
+  res.json({ appMode: getAppMode(), irbApproved: !!settings.irbApproved });
 });
 
 function levelsForSession(sessionNumber, settings) {
@@ -51,7 +51,7 @@ router.get('/protocol/session-plan', (req, res) => {
   const levels = levelsForSession(sessionNumber, settings);
 
   const stmt = db.prepare(
-    'SELECT id, category_id, level, content_type, content, caption, duration_seconds, audience_video_path, audience_video_credit, rejection_letter_path FROM stimuli WHERE category_id = ? AND level = ? AND is_demo = ?'
+    'SELECT id, category_id, level, content_type, content, caption, duration_seconds, audience_video_path, audience_video_credit, rejection_letter_path, interview_video_path FROM stimuli WHERE category_id = ? AND level = ? AND is_demo = ?'
   );
   const plan = levels.map((level) => {
     const stimulus = stmt.get(categoryId, level, isDemo) || stmt.get(categoryId, level, 0);
@@ -69,6 +69,7 @@ router.get('/protocol/session-plan', (req, res) => {
           audienceVideoUrl: stimulus.audience_video_path || null,
           audienceVideoCredit: stimulus.audience_video_credit || null,
           rejectionLetterUrl: stimulus.rejection_letter_path || null,
+          interviewVideoUrl: stimulus.interview_video_path || null,
         }
       : null;
     return {

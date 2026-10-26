@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { UPLOADS_DIR } from './config/paths.js';
+import { getAppMode } from './db/index.js';
 
 import protocolRoutes from './routes/protocol.js';
 import participantRoutes from './routes/participants.js';
@@ -28,7 +29,7 @@ app.use(express.json({ limit: '2mb' }));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, appMode: process.env.APP_MODE || 'demo', time: new Date().toISOString() });
+  res.json({ ok: true, appMode: getAppMode(), time: new Date().toISOString() });
 });
 
 app.use('/api', protocolRoutes);

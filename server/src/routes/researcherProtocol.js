@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getConfig, setConfig } from '../db/index.js';
+import { getConfig, setConfig, getAppMode } from '../db/index.js';
 import { requireResearcher } from '../middleware/auth.js';
 
 const router = Router();
@@ -14,7 +14,7 @@ router.get('/researcher/protocol', (req, res) => {
     questionnaireItems: getConfig('questionnaire_items') || [],
     studySettings: getConfig('study_settings') || {},
     protocolMeta: getConfig('protocol_meta') || {},
-    appMode: process.env.APP_MODE || 'demo',
+    appMode: getAppMode(),
   });
 });
 

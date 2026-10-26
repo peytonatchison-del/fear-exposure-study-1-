@@ -16,6 +16,10 @@ import TestAnxietyNarrativeSim from '../components/TestAnxietyNarrativeSim.jsx';
 import TestAnxietyEasyTestSim from '../components/TestAnxietyEasyTestSim.jsx';
 import TestAnxietyModerateTestSim from '../components/TestAnxietyModerateTestSim.jsx';
 import TestAnxietyDifficultTestSim from '../components/TestAnxietyDifficultTestSim.jsx';
+import JobApplicationNarrativeSim from '../components/JobApplicationNarrativeSim.jsx';
+import JobApplicationResumeSim from '../components/JobApplicationResumeSim.jsx';
+import JobApplicationOfferNegotiationSim from '../components/JobApplicationOfferNegotiationSim.jsx';
+import JobApplicationLiveInterviewSim from '../components/JobApplicationLiveInterviewSim.jsx';
 import { useStudy } from '../context/StudyContext.jsx';
 import { api } from '../api.js';
 import { getFearTopicPhrase } from '../utils/fearTopics.js';
@@ -23,6 +27,10 @@ import { getFearTopicPhrase } from '../utils/fearTopics.js';
 // Interactive stimuli are keyed by the value stored in stimulus.content when
 // contentType === 'simulation'. Add new interactive scenarios here.
 const SIMULATIONS = {
+  job_application_narrative_intro: JobApplicationNarrativeSim,
+  job_application_resume_form: JobApplicationResumeSim,
+  job_application_offer_negotiation: JobApplicationOfferNegotiationSim,
+  job_application_live_interview: JobApplicationLiveInterviewSim,
   admissions_portal_uf: AdmissionsPortalSim,
   college_admissions_narrative_intro: CollegeAdmissionsNarrativeSim,
   college_friend_group_chat: TextThreadSim,

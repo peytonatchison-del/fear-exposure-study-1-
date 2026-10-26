@@ -14,6 +14,7 @@ import BetweenSessions from './screens/BetweenSessions.jsx';
 import FinalAssessment from './screens/FinalAssessment.jsx';
 import Complete from './screens/Complete.jsx';
 import EmergencyHelp from './screens/EmergencyHelp.jsx';
+import Pause from './screens/Pause.jsx';
 import Withdrawn from './screens/Withdrawn.jsx';
 
 import { ResearcherAuthProvider } from './researcher/ResearcherAuth.jsx';
@@ -44,6 +45,7 @@ export default function App() {
       <Route path="/final-assessment" element={<FinalAssessment />} />
       <Route path="/complete" element={<Complete />} />
       <Route path="/help" element={<EmergencyHelp />} />
+      <Route path="/pause" element={<Pause />} />
       <Route path="/withdrawn" element={<Withdrawn />} />
 
       {/* Researcher dashboard */}

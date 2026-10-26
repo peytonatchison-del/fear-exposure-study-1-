@@ -71,6 +71,19 @@ db.exec(schema);
   if (!columns.includes('rejection_letter_path')) db.exec('ALTER TABLE stimuli ADD COLUMN rejection_letter_path TEXT');
 })();
 
+// Column-level migration: lets a researcher upload their own fake interview
+// video, used as the main scene for the Applying for a Job Session 4 live-
+// interview simulation (the participant's own camera is layered on top of it
+// as a picture-in-picture box — see JobApplicationLiveInterviewSim.jsx).
+// Stored separately from content/content_type, same pattern as
+// audience_video_path above. The app never generates this video itself — it
+// stays null (and the simulation shows a placeholder) until a researcher
+// uploads one from the Stimuli tab.
+(function migrateAddStimuliInterviewVideoColumn() {
+  const columns = db.prepare('PRAGMA table_info(stimuli)').all().map((c) => c.name);
+  if (!columns.includes('interview_video_path')) db.exec('ALTER TABLE stimuli ADD COLUMN interview_video_path TEXT');
+})();
+
 // Column-level migration: stores the uploaded path to a participant's Public
 // Speaking Session 4 audio/video response, once real recording (viewed only
 // by the researcher, per the study's consent language) was approved for that
@@ -99,8 +112,8 @@ const DEFAULT_CATEGORIES = [
   { id: 'flying', name: 'Flying', description: 'Images and video related to air travel.', active: true },
   {
     id: 'college_admissions',
-    name: 'Checking College Admission Decisions',
-    description: 'Simulations, text, and images related to college admissions.',
+    name: 'Applying for a Job',
+    description: 'Simulations related to applying for a job, interviewing, and negotiating an offer.',
     active: true,
   },
   {
@@ -197,6 +210,8 @@ const DEFAULT_STUDY_SETTINGS = {
   collegeAdmissionsDescriptionV2: false,
   // Internal one-time-migration flag — see migrateCollegeAdmissionsSessionsV3 below.
   collegeAdmissionsStructureV3: false,
+  // Internal one-time-migration flag — see migrateCollegeAdmissionsJobApplicationV1 below.
+  collegeAdmissionsJobApplicationV1: false,
   // Which exposure levels (1-5) are shown during each session number.
   // Editable in the dashboard's "Session Schedule" tab. Extra session
   // numbers beyond what's listed here fall back to `defaultLevelsPerSession`.
@@ -465,6 +480,63 @@ seedConfig('protocol_meta', { protocolVersion: 1, lastModified: new Date().toISO
   }
 
   setConfig('study_settings', { ...(getConfig('study_settings') || {}), collegeAdmissionsStructureV3: true });
+})();
+
+// One-time redesign: the 'college_admissions' category (id kept unchanged so
+// no participant data needs to move) is reframed from checking a college
+// admission decision to applying for a job — same general shape (an escalating
+// real-world evaluative scenario across 4 levels) but a different, more
+// universally-applicable context. Unconditionally replaces all 4 levels'
+// stimuli with the new job-application simulations (see
+// JobApplicationNarrativeSim.jsx, JobApplicationResumeSim.jsx,
+// JobApplicationOfferNegotiationSim.jsx, and
+// JobApplicationLiveInterviewSim.jsx) and refreshes the category's name/
+// description, exactly once — guarded by the flag below, so a researcher's
+// later edits from the Stimuli/Categories tabs are never overwritten again
+// on a future restart.
+(function migrateCollegeAdmissionsJobApplicationV1() {
+  const settings = getConfig('study_settings') || {};
+  if (settings.collegeAdmissionsJobApplicationV1) return;
+
+  const upsertJobApplicationStimulus = db.prepare(`
+    INSERT INTO stimuli (category_id, level, content_type, content, caption, is_demo)
+    VALUES ('college_admissions', @level, 'simulation', @content, @caption, 0)
+    ON CONFLICT(category_id, level, is_demo) DO UPDATE SET
+      content_type = 'simulation',
+      content = excluded.content,
+      caption = excluded.caption,
+      updated_at = datetime('now')
+  `);
+  const JOB_APPLICATION_STIMULI = [
+    { level: 1, content: 'job_application_narrative_intro', caption: 'Applying for a Job — Level 1 (interactive narrative)' },
+    { level: 2, content: 'job_application_resume_form', caption: 'Applying for a Job — Level 2 (interactive, résumé form)' },
+    { level: 3, content: 'job_application_offer_negotiation', caption: 'Applying for a Job — Level 3 (interactive, offer + negotiation)' },
+    { level: 4, content: 'job_application_live_interview', caption: 'Applying for a Job — Level 4 (interactive, live interview)' },
+  ];
+  for (const item of JOB_APPLICATION_STIMULI) {
+    upsertJobApplicationStimulus.run(item);
+  }
+
+  // Refresh the category's name/description too, but only if it's still
+  // exactly the old college-admissions wording — a researcher's own custom
+  // name/description (edited from the Categories tab) is left untouched.
+  const categories = getConfig('fear_categories') || [];
+  const updatedCategories = categories.map((c) => {
+    if (c.id !== 'college_admissions') return c;
+    const isOldDefault =
+      c.name === 'Checking College Admission Decisions' ||
+      c.description === 'Simulations, text, and images related to college admissions.' ||
+      c.description === 'A vague, deliberately non-spoiling description of a scenario related to checking a college admission decision.';
+    if (!isOldDefault) return c;
+    return {
+      ...c,
+      name: 'Applying for a Job',
+      description: 'Simulations related to applying for a job, interviewing, and negotiating an offer.',
+    };
+  });
+  setConfig('fear_categories', updatedCategories);
+
+  setConfig('study_settings', { ...(getConfig('study_settings') || {}), collegeAdmissionsJobApplicationV1: true });
 })();
 
 // Starter content for the "Public Speaking" category, matching the standard
@@ -851,6 +923,20 @@ if (researcherCount === 0) {
 export function getConfig(key) {
   const row = db.prepare('SELECT value FROM config WHERE key = ?').get(key);
   return row ? JSON.parse(row.value) : null;
+}
+
+// Whether this server is in DEMO or REAL (live-participant) mode. This used
+// to additionally require a separate APP_MODE=real environment variable set
+// directly on the host (e.g. in Railway's dashboard) — a manual step nothing
+// in the researcher dashboard ever surfaced or set, so completing the IRB
+// checklist (which fully controls study_settings.irbApproved, see
+// routes/researcherProtocol.js) looked like it should take the study out of
+// demo mode but silently didn't. irbApproved is now the single source of
+// truth: once every checklist item is confirmed, the server is in real mode,
+// no separate environment variable required.
+export function getAppMode() {
+  const settings = getConfig('study_settings') || {};
+  return settings.irbApproved ? 'real' : 'demo';
 }
 
 export function setConfig(key, value) {
