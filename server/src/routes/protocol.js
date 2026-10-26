@@ -51,7 +51,7 @@ router.get('/protocol/session-plan', (req, res) => {
   const levels = levelsForSession(sessionNumber, settings);
 
   const stmt = db.prepare(
-    'SELECT id, category_id, level, content_type, content, caption, duration_seconds, audience_video_path, audience_video_credit, rejection_letter_path, interview_video_path FROM stimuli WHERE category_id = ? AND level = ? AND is_demo = ?'
+    'SELECT id, category_id, level, content_type, content, caption, duration_seconds, audience_video_path, audience_video_credit, rejection_letter_path, interview_video_path, interview_video_credit FROM stimuli WHERE category_id = ? AND level = ? AND is_demo = ?'
   );
   const plan = levels.map((level) => {
     const stimulus = stmt.get(categoryId, level, isDemo) || stmt.get(categoryId, level, 0);
@@ -70,6 +70,7 @@ router.get('/protocol/session-plan', (req, res) => {
           audienceVideoCredit: stimulus.audience_video_credit || null,
           rejectionLetterUrl: stimulus.rejection_letter_path || null,
           interviewVideoUrl: stimulus.interview_video_path || null,
+          interviewVideoCredit: stimulus.interview_video_credit || null,
         }
       : null;
     return {

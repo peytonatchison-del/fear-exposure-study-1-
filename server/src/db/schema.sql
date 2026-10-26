@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS stimuli (
   audience_video_credit TEXT,      -- optional short attribution line shown under the audience video to participants
   rejection_letter_path TEXT,      -- optional researcher-uploaded image of a college-admissions rejection letter (legacy, no longer used by default content)
   interview_video_path TEXT,       -- optional researcher-uploaded video used as the interviewer scene (Applying for a Job Session 4)
+  interview_video_credit TEXT,     -- optional short attribution line shown under the interview video to participants
   is_demo INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),

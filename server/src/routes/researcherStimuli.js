@@ -93,6 +93,7 @@ function serialize(row) {
     audienceVideoCredit: row.audience_video_credit || null,
     rejectionLetterUrl: row.rejection_letter_path || null,
     interviewVideoUrl: row.interview_video_path || null,
+    interviewVideoCredit: row.interview_video_credit || null,
     isDemo: !!row.is_demo,
     updatedAt: row.updated_at,
   };
@@ -262,11 +263,35 @@ router.post('/researcher/stimuli/:id/interview-video', videoUpload.single('file'
     fs.rm(path.join(UPLOADS_DIR, row.interview_video_path.replace(/^\/uploads\//, '')), { force: true }, () => {});
   }
   const relPath = `/uploads/stimuli/${path.basename(path.dirname(req.file.path))}/${req.file.filename}`;
-  db.prepare(`UPDATE stimuli SET interview_video_path = ?, updated_at = datetime('now') WHERE id = ?`).run(
-    relPath,
+  // An optional credit/subtext line can be sent alongside the file in the
+  // same form submission, same pattern as the audience-video upload route
+  // above; if omitted, whatever credit was already saved (if any) is left
+  // untouched.
+  const credit = typeof req.body.credit === 'string' ? req.body.credit.trim() : undefined;
+  if (credit === undefined) {
+    db.prepare(`UPDATE stimuli SET interview_video_path = ?, updated_at = datetime('now') WHERE id = ?`).run(
+      relPath,
+      req.params.id
+    );
+  } else {
+    db.prepare(
+      `UPDATE stimuli SET interview_video_path = ?, interview_video_credit = ?, updated_at = datetime('now') WHERE id = ?`
+    ).run(relPath, credit || null, req.params.id);
+  }
+  res.json({ ok: true, path: relPath });
+});
+
+// Update just the on-screen credit/subtext line, without touching the video
+// itself — for wording tweaks after the video's already uploaded.
+router.put('/researcher/stimuli/:id/interview-video-credit', (req, res) => {
+  const row = db.prepare('SELECT * FROM stimuli WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Stimulus not found.' });
+  const credit = typeof req.body.credit === 'string' ? req.body.credit.trim() : '';
+  db.prepare(`UPDATE stimuli SET interview_video_credit = ?, updated_at = datetime('now') WHERE id = ?`).run(
+    credit || null,
     req.params.id
   );
-  res.json({ ok: true, path: relPath });
+  res.json({ ok: true });
 });
 
 router.delete('/researcher/stimuli/:id/interview-video', (req, res) => {
@@ -275,9 +300,9 @@ router.delete('/researcher/stimuli/:id/interview-video', (req, res) => {
   if (row.interview_video_path && row.interview_video_path.startsWith('/uploads/')) {
     fs.rm(path.join(UPLOADS_DIR, row.interview_video_path.replace(/^\/uploads\//, '')), { force: true }, () => {});
   }
-  db.prepare(`UPDATE stimuli SET interview_video_path = NULL, updated_at = datetime('now') WHERE id = ?`).run(
-    req.params.id
-  );
+  db.prepare(
+    `UPDATE stimuli SET interview_video_path = NULL, interview_video_credit = NULL, updated_at = datetime('now') WHERE id = ?`
+  ).run(req.params.id);
   res.json({ ok: true });
 });
 

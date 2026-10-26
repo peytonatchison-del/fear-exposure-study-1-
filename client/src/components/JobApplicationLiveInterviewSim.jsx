@@ -57,7 +57,7 @@ function NarrationBlock({ onDone, mediaError }) {
   );
 }
 
-function QuestionStage({ question, questionIndex, totalQuestions, interviewVideoUrl, attachSelfView, onDone }) {
+function QuestionStage({ question, questionIndex, totalQuestions, interviewVideoUrl, interviewVideoCredit, attachSelfView, onDone }) {
   const secondsLeft = useCountdown(QUESTION_SECONDS, questionIndex);
   const onDoneRef = useLatest(onDone);
 
@@ -83,6 +83,9 @@ function QuestionStage({ question, questionIndex, totalQuestions, interviewVideo
           <p className="sim-video-caption-text">{question}</p>
         </div>
       </div>
+      {interviewVideoUrl && interviewVideoCredit && (
+        <p className="sim-video-credit-footer" style={{ textAlign: 'center' }}>{interviewVideoCredit}</p>
+      )}
       <p className="sim-portal-hint" style={{ textAlign: 'center' }}>
         Question {questionIndex + 1} of {totalQuestions} &middot; {secondsLeft}s remaining
       </p>
@@ -94,6 +97,7 @@ export default function JobApplicationLiveInterviewSim({ stimulus, onComplete })
   const [step, setStep] = useState('narration'); // narration | 0 | 1 | 2
   const [mediaError, setMediaError] = useState('');
   const interviewVideoUrl = stimulus?.interviewVideoUrl || null;
+  const interviewVideoCredit = stimulus?.interviewVideoCredit || null;
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -160,6 +164,7 @@ export default function JobApplicationLiveInterviewSim({ stimulus, onComplete })
             questionIndex={step}
             totalQuestions={QUESTIONS.length}
             interviewVideoUrl={interviewVideoUrl}
+            interviewVideoCredit={interviewVideoCredit}
             attachSelfView={attachSelfView}
             onDone={() => handleQuestionDone(step)}
           />

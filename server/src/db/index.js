@@ -84,6 +84,15 @@ db.exec(schema);
   if (!columns.includes('interview_video_path')) db.exec('ALTER TABLE stimuli ADD COLUMN interview_video_path TEXT');
 })();
 
+// Column-level migration: a short attribution line ("Interviewer video
+// courtesy of ...") shown as small subtext under the researcher-uploaded
+// interview video, same idea as audience_video_credit above, so real source
+// footage can be credited on screen.
+(function migrateAddStimuliInterviewVideoCreditColumn() {
+  const columns = db.prepare('PRAGMA table_info(stimuli)').all().map((c) => c.name);
+  if (!columns.includes('interview_video_credit')) db.exec('ALTER TABLE stimuli ADD COLUMN interview_video_credit TEXT');
+})();
+
 // Column-level migration: stores the uploaded path to a participant's Public
 // Speaking Session 4 audio/video response, once real recording (viewed only
 // by the researcher, per the study's consent language) was approved for that

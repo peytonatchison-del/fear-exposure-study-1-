@@ -126,6 +126,7 @@ export default function Stimuli() {
   const [rejectionLetterStatus, setRejectionLetterStatus] = useState('');
   const [uploadingLetter, setUploadingLetter] = useState(false);
   const [interviewVideoFile, setInterviewVideoFile] = useState(null);
+  const [interviewVideoCredit, setInterviewVideoCredit] = useState('');
   const [interviewVideoStatus, setInterviewVideoStatus] = useState('');
   const [uploadingInterviewVideo, setUploadingInterviewVideo] = useState(false);
   const [interviewVideoProgress, setInterviewVideoProgress] = useState(0);
@@ -166,6 +167,7 @@ export default function Stimuli() {
     setRejectionLetterStatus('');
     setUploadingLetter(false);
     setInterviewVideoFile(null);
+    setInterviewVideoCredit(existing?.interviewVideoCredit || '');
     setInterviewVideoStatus('');
     setUploadingInterviewVideo(false);
     setInterviewVideoProgress(0);
@@ -314,6 +316,7 @@ export default function Stimuli() {
     try {
       const fd = new FormData();
       fd.append('file', interviewVideoFile);
+      fd.append('credit', interviewVideoCredit || '');
       await api.uploadInterviewVideoWithProgress(stimulusId, fd, setInterviewVideoProgress);
       setInterviewVideoFile(null);
       setInterviewVideoStatus('Interview video uploaded.');
@@ -325,11 +328,24 @@ export default function Stimuli() {
     }
   }
 
+  async function handleSaveInterviewVideoCredit(stimulusId) {
+    setError('');
+    setInterviewVideoStatus('');
+    try {
+      await api.updateInterviewVideoCredit(stimulusId, interviewVideoCredit || '');
+      setInterviewVideoStatus('Credit saved.');
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function handleClearInterviewVideo(stimulusId) {
     setError('');
     setInterviewVideoStatus('');
     try {
       await api.clearInterviewVideo(stimulusId);
+      setInterviewVideoCredit('');
       setInterviewVideoStatus('Interview video removed.');
       await load();
     } catch (err) {
@@ -575,6 +591,26 @@ export default function Stimuli() {
                       reaches 100%.
                     </p>
                   )}
+
+                  <label className="field-label" style={{ marginTop: 14 }}>
+                    Video credit (optional — shown as small subtext under the video)
+                  </label>
+                  <input
+                    type="text"
+                    value={interviewVideoCredit}
+                    placeholder="e.g. Interview video courtesy of Rise Inc. (YouTube)"
+                    onChange={(e) => setInterviewVideoCredit(e.target.value)}
+                  />
+                  <div className="rd-row" style={{ marginTop: 8 }}>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ width: 'auto' }}
+                      onClick={() => handleSaveInterviewVideoCredit(findStimulus(editing.categoryId, editing.level)?.id)}
+                    >
+                      Save Credit
+                    </button>
+                  </div>
+
                   {interviewVideoStatus && <p style={{ color: 'var(--calm-teal)', marginTop: 8 }}>{interviewVideoStatus}</p>}
                 </div>
               )}

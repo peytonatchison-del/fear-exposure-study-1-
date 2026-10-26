@@ -149,6 +149,8 @@ export const api = {
       xhr.timeout = 20 * 60 * 1000; // 20 minutes, generous for a large video on a slow upload
       xhr.send(formData);
     }),
+  updateInterviewVideoCredit: (id, credit) =>
+    request(`/api/researcher/stimuli/${id}/interview-video-credit`, { method: 'PUT', body: JSON.stringify({ credit }) }),
   clearInterviewVideo: (id) => request(`/api/researcher/stimuli/${id}/interview-video`, { method: 'DELETE' }),
 
   getParticipants: (includeDemo = true) => request(`/api/researcher/participants?includeDemo=${includeDemo ? '1' : '0'}`),
