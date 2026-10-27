@@ -28,7 +28,7 @@ export default function ResearcherLayout() {
   return (
     <div className="rd-shell">
       <aside className="rd-sidebar">
-        <div className="rd-sidebar__title">Fear-Exposure Study</div>
+        <div className="rd-sidebar__title">Stressor-Exposure Study</div>
         {appMode && (
           <div className={`badge ${appMode.appMode === 'real' ? (appMode.irbApproved ? 'badge-real' : 'badge-blocked') : 'badge-demo'}`}>
             {appMode.appMode === 'real' ? (appMode.irbApproved ? 'REAL — IRB APPROVED' : 'REAL — IRB BLOCKED') : 'DEMO MODE'}

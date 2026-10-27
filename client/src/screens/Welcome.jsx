@@ -10,7 +10,7 @@ export default function Welcome() {
   return (
     <Layout hideProgress>
       <div className="card">
-        <h1 className="screen-title">Online Fear Exposure Research Study</h1>
+        <h1 className="screen-title">Online Stressor Exposure Research Study</h1>
         <p className="lead">
           This research study examines changes in self-reported fear during repeated exposure to standardized
           digital material, including short readings, images, and interactive simulations.

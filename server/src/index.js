@@ -70,7 +70,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`\n  Fear-Exposure Research Study API running on http://localhost:${PORT}`);
+  console.log(`\n  Stressor-Exposure Research Study API running on http://localhost:${PORT}`);
   // eslint-disable-next-line no-console
   console.log(`  Mode: ${(process.env.APP_MODE || 'demo').toUpperCase()}\n`);
 });

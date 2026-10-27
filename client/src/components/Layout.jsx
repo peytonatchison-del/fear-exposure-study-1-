@@ -34,7 +34,7 @@ export default function Layout({ children, hideProgress = false, hideHelp = fals
     <>
       {isDemo && <div className="demo-banner">DEMO MODE &mdash; practice run only, no real study data is being collected</div>}
       <header className="app-header">
-        <span className="app-header__title">Online Fear Exposure Research Study</span>
+        <span className="app-header__title">Online Stressor Exposure Research Study</span>
         {!hideHelp && (
           <div className="header-actions">
             <Link to="/pause" className="pause-button">
