@@ -190,6 +190,11 @@ const DEFAULT_STUDY_SETTINGS = {
   // participant finishes session N. Empty string means no separate date is
   // set, and the final assessment opens immediately after the last session.
   finalAssessmentDate: '',
+  // The calendar date ("YYYY-MM-DD") the study itself opens — gates both the
+  // baseline assessment (including the first GAD-7) and Session 1, so no
+  // participant can start before the researcher's chosen date. Empty string
+  // means no date is set, and the study is open to start right away.
+  studyOpenDate: '',
   defaultExposureDurationSeconds: 30,
   // Friendly name shown in the researcher dashboard sidebar (under a
   // "Researcher" label), separate from the login username. Left blank by

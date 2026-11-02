@@ -89,6 +89,7 @@ export default function Protocol() {
         daysBetweenSessions: settings.daysBetweenSessions,
         sessionSchedule: settings.sessionSchedule || {},
         finalAssessmentDate: settings.finalAssessmentDate || '',
+        studyOpenDate: settings.studyOpenDate || '',
         defaultExposureDurationSeconds: settings.defaultExposureDurationSeconds,
         sessionLevelMap,
       });
@@ -216,6 +217,33 @@ export default function Protocol() {
 
       <section className="rd-card">
         <h2 className="section-title" style={{ marginTop: 0 }}>Session Schedule &amp; Timing</h2>
+        <div className="field-block">
+          <label className="field-label">Study opens on (Baseline Assessment + Session 1)</label>
+          <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
+            Set the date the study becomes available to participants. Before this date, anyone who enters a
+            participant code and reaches the baseline assessment (which includes the first GAD-7) or Session 1 will
+            instead see a message stating the date the study opens &mdash; they won&rsquo;t be able to start early.
+            Leave blank to let participants start as soon as they enroll.
+          </p>
+          <div className="rd-row">
+            <input
+              type="date"
+              value={settings.studyOpenDate || ''}
+              onChange={(e) => setSettings((s) => ({ ...s, studyOpenDate: e.target.value }))}
+              style={{ flex: '1 1 180px' }}
+            />
+            {settings.studyOpenDate && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ width: 'auto' }}
+                onClick={() => setSettings((s) => ({ ...s, studyOpenDate: '' }))}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
         <div className="rd-grid-2">
           <div className="field-block">
             <label className="field-label">Number of sessions</label>

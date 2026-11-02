@@ -54,6 +54,7 @@ router.put('/researcher/study-settings', (req, res) => {
     daysBetweenSessions,
     sessionSchedule,
     finalAssessmentDate,
+    studyOpenDate,
     defaultExposureDurationSeconds,
     sessionLevelMap,
     defaultLevelsPerSession,
@@ -74,6 +75,12 @@ router.put('/researcher/study-settings', (req, res) => {
       return res.status(400).json({ error: 'finalAssessmentDate must be a date string (or empty).' });
     }
     next.finalAssessmentDate = finalAssessmentDate;
+  }
+  if (studyOpenDate !== undefined) {
+    if (typeof studyOpenDate !== 'string') {
+      return res.status(400).json({ error: 'studyOpenDate must be a date string (or empty).' });
+    }
+    next.studyOpenDate = studyOpenDate;
   }
   if (defaultExposureDurationSeconds !== undefined) {
     next.defaultExposureDurationSeconds = Number(defaultExposureDurationSeconds);

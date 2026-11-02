@@ -19,6 +19,7 @@ router.get('/protocol', (req, res) => {
     daysBetweenSessions: settings.daysBetweenSessions,
     sessionSchedule: settings.sessionSchedule || {},
     finalAssessmentDate: settings.finalAssessmentDate || '',
+    studyOpenDate: settings.studyOpenDate || '',
     defaultExposureDurationSeconds: settings.defaultExposureDurationSeconds,
     irbApproved: !!settings.irbApproved,
     consentText: settings.consentText || '',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import AssessmentForm from '../components/AssessmentForm.jsx';
 import { useStudy } from '../context/StudyContext.jsx';
@@ -13,6 +13,7 @@ const GAD7_HIGH_SCORE_THRESHOLD = 15;
 
 export default function Baseline() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { participant, protocol, categoryName, clearParticipant } = useStudy();
   const [busy, setBusy] = useState(false);
   // null = still filling out the form. Once submitted with a GAD-7 total
@@ -26,6 +27,20 @@ export default function Baseline() {
   if (!participant) {
     navigate('/participant-code');
     return null;
+  }
+
+  // The researcher can set a single date that gates the whole study open —
+  // baseline (including the first GAD-7) and Session 1 both wait for it, so
+  // a participant can never jump in before the date the researcher chose.
+  // The demo-mode "Skip wait" button on the between-sessions screen passes
+  // ?skipWait=1 so a demo run isn't bounced right back here.
+  const skippingWait = participant.isDemo && searchParams.get('skipWait') === '1';
+  if (protocol?.studyOpenDate && !skippingWait) {
+    const availableAt = new Date(`${protocol.studyOpenDate}T00:00:00Z`).getTime();
+    if (Number.isFinite(availableAt) && Date.now() < availableAt) {
+      navigate(`/between-sessions?availableAt=${availableAt}&session=baseline`);
+      return null;
+    }
   }
 
   async function handleSubmit(payload) {
