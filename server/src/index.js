@@ -51,9 +51,28 @@ app.use('/api', researcherExportRoutes);
 // run `npm run build:client`.
 const CLIENT_DIST = path.resolve(__dirname, '../../client/dist');
 if (fs.existsSync(CLIENT_DIST)) {
-  app.use(express.static(CLIENT_DIST));
+  // index.html itself must never be cached: it's what points the browser at
+  // the current build's JS/CSS files (which Vite names with a content hash,
+  // e.g. index-aB3dF9.js). Those hashed files are safe to cache forever —
+  // a new deploy gets new filenames — but if a stale, cached index.html
+  // survives in someone's browser past a new deploy, it points at files
+  // that no longer exist on the server, and the app fails to load at all
+  // (a blank white screen) until they hard-refresh. Explicitly marking
+  // index.html "don't cache" means every visit (new tab, reopened tab,
+  // normal reload) always fetches the current one, so this can't happen —
+  // no participant should ever need to know to hard-refresh.
+  app.use(
+    express.static(CLIENT_DIST, {
+      setHeaders(res, filePath) {
+        if (path.basename(filePath) === 'index.html') {
+          res.setHeader('Cache-Control', 'no-store');
+        }
+      },
+    })
+  );
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) return next();
+    res.setHeader('Cache-Control', 'no-store');
     res.sendFile(path.join(CLIENT_DIST, 'index.html'));
   });
 }
