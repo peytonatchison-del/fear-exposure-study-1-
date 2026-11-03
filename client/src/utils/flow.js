@@ -22,7 +22,10 @@ export async function resolveResumeRoute(participant, protocol) {
     // the last regular session's date.
     const finalDate = protocol?.finalAssessmentDate;
     if (finalDate) {
-      const availableAt = new Date(`${finalDate}T00:00:00Z`).getTime();
+      // No "Z" — local midnight in the participant's own browser, not UTC
+      // midnight, so a scheduled date always means 12:00 AM that day for
+      // whoever is looking at the screen.
+      const availableAt = new Date(`${finalDate}T00:00:00`).getTime();
       if (Date.now() < availableAt) {
         return `/between-sessions?availableAt=${availableAt}&session=final`;
       }
@@ -40,7 +43,7 @@ export async function resolveResumeRoute(participant, protocol) {
     const waitDays = protocol?.daysBetweenSessions || 0;
     let availableAt = null;
     if (scheduledDate) {
-      availableAt = new Date(`${scheduledDate}T00:00:00Z`).getTime();
+      availableAt = new Date(`${scheduledDate}T00:00:00`).getTime(); // local midnight, see note above
     } else if (prevStatus.completed_at && waitDays > 0) {
       // SQLite's datetime('now') returns "YYYY-MM-DD HH:MM:SS" (UTC, space
       // separator). Convert to a strict ISO string before parsing — some

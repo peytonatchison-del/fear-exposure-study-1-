@@ -32,7 +32,10 @@ export default function Baseline() {
   const skippingWait = !!participant?.isDemo && searchParams.get('skipWait') === '1';
   let gateAvailableAt = null;
   if (participant && protocol?.studyOpenDate && !skippingWait) {
-    const availableAt = new Date(`${protocol.studyOpenDate}T00:00:00Z`).getTime();
+    // No "Z" — local midnight in the participant's own browser, not UTC
+    // midnight, so the study always opens at 12:00 AM on the chosen date
+    // for whoever is looking at the screen.
+    const availableAt = new Date(`${protocol.studyOpenDate}T00:00:00`).getTime();
     if (Number.isFinite(availableAt) && Date.now() < availableAt) {
       gateAvailableAt = availableAt;
     }

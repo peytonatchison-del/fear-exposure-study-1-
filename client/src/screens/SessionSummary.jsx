@@ -65,7 +65,11 @@ export default function SessionSummary() {
       // of the last regular session's date.
       const finalDate = protocol?.finalAssessmentDate;
       if (finalDate) {
-        const availableAt = new Date(`${finalDate}T00:00:00Z`).getTime();
+        // No "Z" here on purpose — parsed this way, the date string is
+        // local midnight in whoever's browser is running this code, not UTC
+        // midnight, so "available on this date" always means 12:00 AM that
+        // day for the person actually looking at the screen.
+        const availableAt = new Date(`${finalDate}T00:00:00`).getTime();
         if (Date.now() < availableAt) {
           navigate(`/between-sessions?availableAt=${availableAt}&session=final`);
           return;
@@ -78,7 +82,7 @@ export default function SessionSummary() {
     // takes priority over the legacy days-between-sessions countdown.
     const scheduledDate = protocol?.sessionSchedule?.[String(nextSession)];
     if (scheduledDate) {
-      const availableAt = new Date(`${scheduledDate}T00:00:00Z`).getTime();
+      const availableAt = new Date(`${scheduledDate}T00:00:00`).getTime(); // local midnight, see note above
       if (Date.now() < availableAt) {
         navigate(`/between-sessions?availableAt=${availableAt}&session=${nextSession}`);
         return;
