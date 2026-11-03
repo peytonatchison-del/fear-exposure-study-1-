@@ -19,8 +19,19 @@ export default function BetweenSessions() {
     return () => clearInterval(id);
   }, []);
 
+  // Redirect in an effect rather than directly in render — this screen is
+  // usually landed on right after another screen's own navigate() call
+  // (e.g. Baseline redirecting here), and calling navigate() again straight
+  // from render in that situation can crash the whole app silently. See the
+  // matching comment in Baseline.jsx.
+  useEffect(() => {
+    if (!participant) {
+      navigate('/participant-code');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [participant]);
+
   if (!participant) {
-    navigate('/participant-code');
     return null;
   }
 
