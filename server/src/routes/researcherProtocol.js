@@ -55,6 +55,9 @@ router.put('/researcher/study-settings', (req, res) => {
     sessionSchedule,
     finalAssessmentDate,
     studyOpenDate,
+    sessionTimingMode,
+    rollingUnlockHours,
+    rollingWindowHours,
     defaultExposureDurationSeconds,
     sessionLevelMap,
     defaultLevelsPerSession,
@@ -81,6 +84,22 @@ router.put('/researcher/study-settings', (req, res) => {
       return res.status(400).json({ error: 'studyOpenDate must be a date string (or empty).' });
     }
     next.studyOpenDate = studyOpenDate;
+  }
+  if (sessionTimingMode !== undefined) {
+    if (sessionTimingMode !== 'calendar' && sessionTimingMode !== 'rolling') {
+      return res.status(400).json({ error: 'sessionTimingMode must be "calendar" or "rolling".' });
+    }
+    next.sessionTimingMode = sessionTimingMode;
+  }
+  if (rollingUnlockHours !== undefined) {
+    const n = Number(rollingUnlockHours);
+    if (!Number.isFinite(n) || n < 0) return res.status(400).json({ error: 'rollingUnlockHours must be a non-negative number.' });
+    next.rollingUnlockHours = n;
+  }
+  if (rollingWindowHours !== undefined) {
+    const n = Number(rollingWindowHours);
+    if (!Number.isFinite(n) || n <= 0) return res.status(400).json({ error: 'rollingWindowHours must be a positive number.' });
+    next.rollingWindowHours = n;
   }
   if (defaultExposureDurationSeconds !== undefined) {
     next.defaultExposureDurationSeconds = Number(defaultExposureDurationSeconds);

@@ -11,6 +11,7 @@ import ExposureIntro from './screens/ExposureIntro.jsx';
 import ExposureSession from './screens/ExposureSession.jsx';
 import SessionSummary from './screens/SessionSummary.jsx';
 import BetweenSessions from './screens/BetweenSessions.jsx';
+import SessionExpired from './screens/SessionExpired.jsx';
 import FinalAssessment from './screens/FinalAssessment.jsx';
 import Complete from './screens/Complete.jsx';
 import EmergencyHelp from './screens/EmergencyHelp.jsx';
@@ -42,6 +43,7 @@ export default function App() {
       <Route path="/session/:sessionNumber" element={<ExposureSession />} />
       <Route path="/session/:sessionNumber/summary" element={<SessionSummary />} />
       <Route path="/between-sessions" element={<BetweenSessions />} />
+      <Route path="/session-expired" element={<SessionExpired />} />
       <Route path="/final-assessment" element={<FinalAssessment />} />
       <Route path="/complete" element={<Complete />} />
       <Route path="/help" element={<EmergencyHelp />} />

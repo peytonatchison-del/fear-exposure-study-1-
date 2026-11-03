@@ -2,17 +2,23 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import { useStudy } from '../context/StudyContext.jsx';
+import { formatDuration } from '../utils/formatDuration.js';
 
 export default function ExposureIntro() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { participant, categoryName } = useStudy();
+  const { participant, categoryName, protocol } = useStudy();
   const sessionNumber = Number(params.get('session') || participant?.currentSessionNumber || 1);
 
   if (!participant) {
     navigate('/participant-code');
     return null;
   }
+
+  const rolling = protocol?.sessionTimingMode === 'rolling';
+  const numSessions = protocol?.numSessions || 1;
+  const unlockHours = protocol?.rollingUnlockHours ?? 24;
+  const windowHours = protocol?.rollingWindowHours ?? 72;
 
   return (
     <Layout>
@@ -34,6 +40,15 @@ export default function ExposureIntro() {
           you a controlled, low-stakes chance to notice what you feel before, during, and after, and to compare what
           you expected would happen against what actually happened. You'll be asked about both right after.
         </div>
+
+        {rolling && (
+          <div className="disclaimer-banner" style={{ background: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+            <strong>Timing:</strong>{' '}
+            {sessionNumber >= numSessions
+              ? `Once you finish this session, your final assessment will unlock ${formatDuration(unlockHours)} later, and will stay open for ${formatDuration(windowHours)} after that.`
+              : `Once you finish this session, Session ${sessionNumber + 1} will unlock ${formatDuration(unlockHours)} later, and will stay open for ${formatDuration(windowHours)} after that.`}
+          </div>
+        )}
 
         <ul style={{ color: 'var(--text-secondary)', lineHeight: 1.8, paddingLeft: 22 }}>
           <li>You may stop at any time, for any reason.</li>

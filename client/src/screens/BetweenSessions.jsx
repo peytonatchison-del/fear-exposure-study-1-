@@ -8,6 +8,8 @@ export default function BetweenSessions() {
   const [params] = useSearchParams();
   const { participant } = useStudy();
   const availableAt = Number(params.get('availableAt'));
+  const expiresAtParam = params.get('expiresAt');
+  const expiresAt = expiresAtParam !== null ? Number(expiresAtParam) : null;
   const sessionParam = params.get('session');
   const isFinal = sessionParam === 'final';
   const isBaseline = sessionParam === 'baseline';
@@ -43,6 +45,7 @@ export default function BetweenSessions() {
       ? new Date(availableAt).toLocaleDateString()
       : new Date(availableAt).toLocaleString()
     : '';
+  const readableExpiry = Number.isFinite(expiresAt) ? new Date(expiresAt).toLocaleString() : '';
 
   const destination = isFinal ? '/final-assessment' : isBaseline ? '/baseline' : `/exposure-intro?session=${session}`;
   // Baseline re-checks the study-open date itself on every visit (it has
@@ -84,6 +87,13 @@ export default function BetweenSessions() {
                   <strong>{readableDate}</strong> ({daysLeft} day
                   {daysLeft === 1 ? '' : 's'} from now). You can close this tab and come back later using your study
                   code.
+                  {readableExpiry && (
+                    <>
+                      {' '}
+                      Once it unlocks, you&rsquo;ll need to start it before <strong>{readableExpiry}</strong>, after
+                      which that window closes.
+                    </>
+                  )}
                 </>
               )}
             </p>

@@ -195,6 +195,22 @@ const DEFAULT_STUDY_SETTINGS = {
   // participant can start before the researcher's chosen date. Empty string
   // means no date is set, and the study is open to start right away.
   studyOpenDate: '',
+  // How Session 2+ (and the final assessment) decide when they unlock.
+  // 'calendar' — the existing behavior: specific calendar dates set above
+  // (sessionSchedule / finalAssessmentDate), falling back to
+  // daysBetweenSessions. 'rolling' — each session unlocks a fixed number of
+  // hours after the participant finishes the previous one (rollingUnlockHours),
+  // and then stays available for a further fixed number of hours
+  // (rollingWindowHours) before that session's window closes. Session 1 (and
+  // the baseline assessment) are never gated by this — they're only gated by
+  // studyOpenDate above, same as always.
+  sessionTimingMode: 'calendar',
+  // Hours after finishing a session before the next one unlocks. Only used
+  // when sessionTimingMode is 'rolling'.
+  rollingUnlockHours: 24,
+  // Hours a session stays open once it unlocks, before its window closes and
+  // it can no longer be started. Only used when sessionTimingMode is 'rolling'.
+  rollingWindowHours: 72,
   defaultExposureDurationSeconds: 30,
   // Friendly name shown in the researcher dashboard sidebar (under a
   // "Researcher" label), separate from the login username. Left blank by
@@ -304,6 +320,23 @@ seedConfig('protocol_meta', { protocolVersion: 1, lastModified: new Date().toISO
   const settings = getConfig('study_settings') || {};
   if (settings.researcherDisplayName === 'Peyton Atchison') {
     setConfig('study_settings', { ...settings, researcherDisplayName: '' });
+  }
+})();
+
+// One-time migration for databases created before the rolling (24h-unlock /
+// 72h-window) session timing option existed — adds the three new settings
+// at their defaults without touching anything a researcher already
+// configured. Defaulting sessionTimingMode to 'calendar' means an existing
+// study's behavior is completely unchanged until the researcher opts in.
+(function migrateAddRollingSessionTiming() {
+  const settings = getConfig('study_settings') || {};
+  if (settings.sessionTimingMode === undefined) {
+    setConfig('study_settings', {
+      ...settings,
+      sessionTimingMode: DEFAULT_STUDY_SETTINGS.sessionTimingMode,
+      rollingUnlockHours: DEFAULT_STUDY_SETTINGS.rollingUnlockHours,
+      rollingWindowHours: DEFAULT_STUDY_SETTINGS.rollingWindowHours,
+    });
   }
 })();
 
