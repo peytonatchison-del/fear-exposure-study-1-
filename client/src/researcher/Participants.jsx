@@ -19,11 +19,49 @@ export default function Participants() {
     setDetail(await api.getParticipantDetail(code));
   }
 
+  // Deletes just this one participant (and their assessments/exposure
+  // responses) rather than clearing everyone — for cleaning up a single
+  // mistaken, duplicate, or test entry without touching anyone else's data.
+  async function handleDeleteOne(code) {
+    if (!window.confirm(`Delete participant ${code} and all of their data? This cannot be undone.`)) return;
+    setBusy(true);
+    try {
+      await api.deleteParticipant(code);
+      if (detail?.studyCode === code) setDetail(null);
+      load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleClearDemo() {
     if (!window.confirm('Delete all demo participants and their data? This cannot be undone.')) return;
     setBusy(true);
     try {
       await api.deleteDemoData();
+      load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Wipes every participant (demo AND real) so the list comes back empty —
+  // meant for clearing out your own test/walkthrough runs before real
+  // recruitment starts. Only participant data is touched: study settings,
+  // the IRB checklist, and the IRB-approved/real-mode badge above are
+  // unaffected either way.
+  async function handleClearAll() {
+    if (
+      !window.confirm(
+        'Delete EVERY participant — demo AND real — and all of their assessments/responses? ' +
+          'This cannot be undone. Your study settings and IRB-approved status will NOT change.'
+      )
+    )
+      return;
+    setBusy(true);
+    try {
+      await api.deleteAllParticipantData();
+      setDetail(null);
       load();
     } finally {
       setBusy(false);
@@ -43,7 +81,14 @@ export default function Participants() {
         <button className="btn btn-danger" style={{ width: 'auto' }} disabled={busy} onClick={handleClearDemo}>
           Clear All Demo Data
         </button>
+        <button className="btn btn-danger" style={{ width: 'auto' }} disabled={busy} onClick={handleClearAll}>
+          Clear ALL Participant Data
+        </button>
       </div>
+      <p className="lead" style={{ fontSize: '0.85rem', marginTop: -8 }}>
+        "Clear ALL Participant Data" removes every participant, demo or real — use it to wipe out your own test runs
+        before real recruitment starts. It never changes your study settings or IRB-approved status.
+      </p>
 
       {error && <p className="error-text">{error}</p>}
 
@@ -71,9 +116,17 @@ export default function Participants() {
                 <td>{r.currentSessionNumber}</td>
                 <td>{r.hasBaseline ? '✓' : '—'}</td>
                 <td>{r.hasFinal ? '✓' : '—'}</td>
-                <td>
+                <td style={{ display: 'flex', gap: 8 }}>
                   <button className="btn btn-secondary" style={{ width: 'auto' }} onClick={() => openDetail(r.studyCode)}>
                     View
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    style={{ width: 'auto' }}
+                    disabled={busy}
+                    onClick={() => handleDeleteOne(r.studyCode)}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -171,9 +224,19 @@ export default function Participants() {
             </table>
           </div>
 
-          <button className="btn btn-secondary" style={{ width: 'auto', marginTop: 12 }} onClick={() => setDetail(null)}>
-            Close
-          </button>
+          <div className="rd-row" style={{ marginTop: 12 }}>
+            <button className="btn btn-secondary" style={{ width: 'auto' }} onClick={() => setDetail(null)}>
+              Close
+            </button>
+            <button
+              className="btn btn-danger"
+              style={{ width: 'auto' }}
+              disabled={busy}
+              onClick={() => handleDeleteOne(detail.studyCode)}
+            >
+              Delete This Participant
+            </button>
+          </div>
         </div>
       )}
     </div>

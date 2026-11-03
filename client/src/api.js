@@ -155,7 +155,9 @@ export const api = {
 
   getParticipants: (includeDemo = true) => request(`/api/researcher/participants?includeDemo=${includeDemo ? '1' : '0'}`),
   getParticipantDetail: (code) => request(`/api/researcher/participants/${encodeURIComponent(code)}`),
+  deleteParticipant: (code) => request(`/api/researcher/participants/${encodeURIComponent(code)}`, { method: 'DELETE' }),
   deleteDemoData: () => request('/api/researcher/demo-data', { method: 'DELETE' }),
+  deleteAllParticipantData: () => request('/api/researcher/all-participant-data', { method: 'DELETE' }),
   getSummary: (includeDemo = true) => request(`/api/researcher/summary?includeDemo=${includeDemo ? '1' : '0'}`),
 
   // CSV export routes require the researcher auth header, so a plain <a href>

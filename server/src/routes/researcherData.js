@@ -60,8 +60,48 @@ router.get('/researcher/participants/:code', (req, res) => {
   });
 });
 
+// Deletes one specific participant (by study code) and everything attached
+// to them — their assessments, exposure responses, and session log rows.
+// Works on a demo OR a real participant; unlike the two bulk-delete routes
+// below, this one is scoped to a single row so a researcher can clean up
+// one mistaken/duplicate/test entry without wiping everyone else.
+router.delete('/researcher/participants/:code', (req, res) => {
+  const participant = db.prepare('SELECT id FROM participants WHERE study_code = ?').get(req.params.code.toUpperCase());
+  if (!participant) return res.status(404).json({ error: 'Participant not found.' });
+  const del = db.transaction((id) => {
+    db.prepare('DELETE FROM assessments WHERE participant_id = ?').run(id);
+    db.prepare('DELETE FROM exposure_responses WHERE participant_id = ?').run(id);
+    db.prepare('DELETE FROM session_log WHERE participant_id = ?').run(id);
+    db.prepare('DELETE FROM participants WHERE id = ?').run(id);
+  });
+  del(participant.id);
+  res.json({ ok: true });
+});
+
 router.delete('/researcher/demo-data', (req, res) => {
   const ids = db.prepare('SELECT id FROM participants WHERE is_demo = 1').all().map((r) => r.id);
+  const del = db.transaction((participantIds) => {
+    for (const id of participantIds) {
+      db.prepare('DELETE FROM assessments WHERE participant_id = ?').run(id);
+      db.prepare('DELETE FROM exposure_responses WHERE participant_id = ?').run(id);
+      db.prepare('DELETE FROM session_log WHERE participant_id = ?').run(id);
+      db.prepare('DELETE FROM participants WHERE id = ?').run(id);
+    }
+  });
+  del(ids);
+  res.json({ ok: true, removed: ids.length });
+});
+
+// Wipes every participant row — demo AND real — leaving an empty participant
+// list. Used to clear out test/walkthrough data collected while verifying
+// the app before real recruitment starts. Deliberately scoped to ONLY the
+// participants/assessments/exposure_responses/session_log tables: the
+// `config` table (study_settings, including irbApproved, the IRB checklist
+// answers, protocol/questionnaire/category setup, consent text) and the
+// `stimuli` table are never touched, so the IRB-approved/real-mode status
+// and all study configuration survive a clear exactly as they were.
+router.delete('/researcher/all-participant-data', (req, res) => {
+  const ids = db.prepare('SELECT id FROM participants').all().map((r) => r.id);
   const del = db.transaction((participantIds) => {
     for (const id of participantIds) {
       db.prepare('DELETE FROM assessments WHERE participant_id = ?').run(id);
