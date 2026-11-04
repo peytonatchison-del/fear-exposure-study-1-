@@ -16,6 +16,7 @@ import researcherProtocolRoutes from './routes/researcherProtocol.js';
 import researcherStimuliRoutes from './routes/researcherStimuli.js';
 import researcherDataRoutes from './routes/researcherData.js';
 import researcherExportRoutes from './routes/researcherExport.js';
+import researcherExtensionsRoutes from './routes/researcherExtensions.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api', researcherProtocolRoutes);
 app.use('/api', researcherStimuliRoutes);
 app.use('/api', researcherDataRoutes);
 app.use('/api', researcherExportRoutes);
+app.use('/api', researcherExtensionsRoutes);
 
 // In production, this server also serves the already-built React client
 // (client/dist), so the whole app is one deployable service with no CORS

@@ -39,6 +39,12 @@ export const api = {
       body: JSON.stringify({ fearCategoryId }),
     }),
   withdraw: (code) => request(`/api/participants/${encodeURIComponent(code)}/withdraw`, { method: 'POST' }),
+  getExtensionRequests: (code) => request(`/api/participants/${encodeURIComponent(code)}/extension-requests`),
+  requestExtension: (code, sessionLabel, note) =>
+    request(`/api/participants/${encodeURIComponent(code)}/extension-requests`, {
+      method: 'POST',
+      body: JSON.stringify({ sessionLabel, note }),
+    }),
 
   submitAssessment: (code, payload) =>
     request(`/api/participants/${encodeURIComponent(code)}/assessments`, { method: 'POST', body: JSON.stringify(payload) }),
@@ -159,6 +165,13 @@ export const api = {
   deleteDemoData: () => request('/api/researcher/demo-data', { method: 'DELETE' }),
   deleteAllParticipantData: () => request('/api/researcher/all-participant-data', { method: 'DELETE' }),
   getSummary: (includeDemo = true) => request(`/api/researcher/summary?includeDemo=${includeDemo ? '1' : '0'}`),
+
+  getAllExtensionRequests: () => request('/api/researcher/extension-requests'),
+  decideExtensionRequest: (id, status, grantedDays) =>
+    request(`/api/researcher/extension-requests/${id}/decide`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, grantedDays }),
+    }),
 
   // CSV export routes require the researcher auth header, so a plain <a href>
   // won't carry it — fetch as a blob and trigger a save instead.

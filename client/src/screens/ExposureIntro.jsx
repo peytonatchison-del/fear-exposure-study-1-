@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import { useStudy } from '../context/StudyContext.jsx';
+import { api } from '../api.js';
 import { formatDuration } from '../utils/formatDuration.js';
 
 export default function ExposureIntro() {
@@ -10,15 +11,39 @@ export default function ExposureIntro() {
   const { participant, categoryName, protocol } = useStudy();
   const sessionNumber = Number(params.get('session') || participant?.currentSessionNumber || 1);
 
-  if (!participant) {
-    navigate('/participant-code');
-    return null;
-  }
-
   const rolling = protocol?.sessionTimingMode === 'rolling';
   const numSessions = protocol?.numSessions || 1;
   const unlockHours = protocol?.rollingUnlockHours ?? 24;
   const windowHours = protocol?.rollingWindowHours ?? 72;
+
+  // If this session was reachable only because the researcher approved a
+  // "more time" request (see SessionExpired.jsx), say so plainly rather than
+  // silently letting them in — the participant asked for this and should
+  // know it was granted, and how much.
+  const [grantedHours, setGrantedHours] = useState(0);
+  useEffect(() => {
+    if (!participant || !rolling) return;
+    let cancelled = false;
+    api
+      .getExtensionRequests(participant.studyCode)
+      .then((requests) => {
+        if (cancelled) return;
+        const total = requests
+          .filter((r) => r.sessionLabel === String(sessionNumber) && r.status === 'approved')
+          .reduce((sum, r) => sum + (r.grantedHours || 0), 0);
+        setGrantedHours(total);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [participant, rolling, sessionNumber]);
+
+  if (!participant) {
+    navigate('/participant-code');
+    return null;
+  }
 
   return (
     <Layout>
@@ -40,6 +65,13 @@ export default function ExposureIntro() {
           you a controlled, low-stakes chance to notice what you feel before, during, and after, and to compare what
           you expected would happen against what actually happened. You'll be asked about both right after.
         </div>
+
+        {rolling && grantedHours > 0 && (
+          <div className="disclaimer-banner" style={{ background: 'var(--calm-teal-soft)', borderColor: '#bfe6d5', color: '#0b5d3f' }}>
+            <strong>Good news:</strong> the researcher gave you {formatDuration(grantedHours)} of extra time to start
+            this session, which is why it&rsquo;s open again.
+          </div>
+        )}
 
         {rolling && (
           <div className="disclaimer-banner" style={{ background: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>

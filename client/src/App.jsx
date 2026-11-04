@@ -23,6 +23,7 @@ import ResearcherLayout from './researcher/ResearcherLayout.jsx';
 import ResearcherLogin from './researcher/Login.jsx';
 import Overview from './researcher/Overview.jsx';
 import Participants from './researcher/Participants.jsx';
+import ExtensionRequests from './researcher/ExtensionRequests.jsx';
 import Protocol from './researcher/Protocol.jsx';
 import Stimuli from './researcher/Stimuli.jsx';
 import IrbChecklist from './researcher/IrbChecklist.jsx';
@@ -60,6 +61,7 @@ export default function App() {
               <Route element={<ResearcherLayout />}>
                 <Route path="overview" element={<Overview />} />
                 <Route path="participants" element={<Participants />} />
+                <Route path="extension-requests" element={<ExtensionRequests />} />
                 <Route path="protocol" element={<Protocol />} />
                 <Route path="stimuli" element={<Stimuli />} />
                 <Route path="irb" element={<IrbChecklist />} />

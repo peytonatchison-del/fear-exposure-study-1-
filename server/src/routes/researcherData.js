@@ -72,6 +72,7 @@ router.delete('/researcher/participants/:code', (req, res) => {
     db.prepare('DELETE FROM assessments WHERE participant_id = ?').run(id);
     db.prepare('DELETE FROM exposure_responses WHERE participant_id = ?').run(id);
     db.prepare('DELETE FROM session_log WHERE participant_id = ?').run(id);
+    db.prepare('DELETE FROM extension_requests WHERE participant_id = ?').run(id);
     db.prepare('DELETE FROM participants WHERE id = ?').run(id);
   });
   del(participant.id);
@@ -85,6 +86,7 @@ router.delete('/researcher/demo-data', (req, res) => {
       db.prepare('DELETE FROM assessments WHERE participant_id = ?').run(id);
       db.prepare('DELETE FROM exposure_responses WHERE participant_id = ?').run(id);
       db.prepare('DELETE FROM session_log WHERE participant_id = ?').run(id);
+      db.prepare('DELETE FROM extension_requests WHERE participant_id = ?').run(id);
       db.prepare('DELETE FROM participants WHERE id = ?').run(id);
     }
   });
@@ -95,7 +97,7 @@ router.delete('/researcher/demo-data', (req, res) => {
 // Wipes every participant row — demo AND real — leaving an empty participant
 // list. Used to clear out test/walkthrough data collected while verifying
 // the app before real recruitment starts. Deliberately scoped to ONLY the
-// participants/assessments/exposure_responses/session_log tables: the
+// participants/assessments/exposure_responses/session_log/extension_requests tables: the
 // `config` table (study_settings, including irbApproved, the IRB checklist
 // answers, protocol/questionnaire/category setup, consent text) and the
 // `stimuli` table are never touched, so the IRB-approved/real-mode status
@@ -107,6 +109,7 @@ router.delete('/researcher/all-participant-data', (req, res) => {
       db.prepare('DELETE FROM assessments WHERE participant_id = ?').run(id);
       db.prepare('DELETE FROM exposure_responses WHERE participant_id = ?').run(id);
       db.prepare('DELETE FROM session_log WHERE participant_id = ?').run(id);
+      db.prepare('DELETE FROM extension_requests WHERE participant_id = ?').run(id);
       db.prepare('DELETE FROM participants WHERE id = ?').run(id);
     }
   });

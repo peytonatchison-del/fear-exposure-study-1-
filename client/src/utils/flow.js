@@ -10,13 +10,27 @@ function completedAtMs(sqliteTimestamp) {
 // For "rolling" session timing: given when the previous session (or
 // baseline, for session 1 — though session 1 is never gated this way) was
 // completed, returns when the next one unlocks and when that window closes.
-// Exported so BetweenSessions/SessionExpired can be given the same numbers
-// without recomputing them differently.
-export function rollingWindowFor(prevCompletedAtSqlite, protocol) {
+// extraHours adds on top of the researcher's configured rollingWindowHours —
+// that's where an approved "more time" request (see extensionHoursFor below)
+// gets applied, stacking additively onto the normal window. Exported so
+// BetweenSessions/SessionExpired can be given the same numbers without
+// recomputing them differently.
+export function rollingWindowFor(prevCompletedAtSqlite, protocol, extraHours = 0) {
   const unlockMs = (protocol?.rollingUnlockHours ?? 24) * 3600000;
-  const windowMs = (protocol?.rollingWindowHours ?? 72) * 3600000;
+  const windowMs = ((protocol?.rollingWindowHours ?? 72) + (extraHours || 0)) * 3600000;
   const availableAt = completedAtMs(prevCompletedAtSqlite) + unlockMs;
   return { availableAt, expiresAt: availableAt + windowMs };
+}
+
+// Total extra hours a researcher has approved for one specific session
+// (sessionLabel is a session number as a string, or "final") — every
+// approved request for that session stacks, so granting time twice just
+// adds up. Pending/denied requests contribute nothing.
+async function extensionHoursFor(studyCode, sessionLabel) {
+  const requests = await api.getExtensionRequests(studyCode);
+  return requests
+    .filter((r) => r.sessionLabel === sessionLabel && r.status === 'approved')
+    .reduce((sum, r) => sum + (r.grantedHours || 0), 0);
 }
 
 // Works out where a participant should land next, whether they just created
@@ -41,7 +55,8 @@ export async function resolveResumeRoute(participant, protocol) {
     if (rolling) {
       const prevStatus = await api.getSessionStatus(participant.studyCode, numSessions);
       if (prevStatus.completed_at) {
-        const { availableAt, expiresAt } = rollingWindowFor(prevStatus.completed_at, protocol);
+        const extraHours = await extensionHoursFor(participant.studyCode, 'final');
+        const { availableAt, expiresAt } = rollingWindowFor(prevStatus.completed_at, protocol, extraHours);
         if (Date.now() < availableAt) return `/between-sessions?availableAt=${availableAt}&expiresAt=${expiresAt}&session=final`;
         if (Date.now() > expiresAt) return `/session-expired?session=final&closedAt=${expiresAt}`;
       }
@@ -75,7 +90,8 @@ export async function resolveResumeRoute(participant, protocol) {
 
     if (rolling) {
       if (!alreadyStarted && prevStatus.completed_at) {
-        const { availableAt, expiresAt } = rollingWindowFor(prevStatus.completed_at, protocol);
+        const extraHours = await extensionHoursFor(participant.studyCode, String(sessionNumber));
+        const { availableAt, expiresAt } = rollingWindowFor(prevStatus.completed_at, protocol, extraHours);
         if (Date.now() < availableAt) return `/between-sessions?availableAt=${availableAt}&expiresAt=${expiresAt}&session=${sessionNumber}`;
         if (Date.now() > expiresAt) return `/session-expired?session=${sessionNumber}&closedAt=${expiresAt}`;
       }
