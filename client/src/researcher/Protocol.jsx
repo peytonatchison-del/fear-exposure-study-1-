@@ -89,6 +89,10 @@ export default function Protocol() {
         daysBetweenSessions: settings.daysBetweenSessions,
         sessionSchedule: settings.sessionSchedule || {},
         finalAssessmentDate: settings.finalAssessmentDate || '',
+        studyOpenDate: settings.studyOpenDate || '',
+        sessionTimingMode: settings.sessionTimingMode || 'calendar',
+        rollingUnlockHours: settings.rollingUnlockHours,
+        rollingWindowHours: settings.rollingWindowHours,
         defaultExposureDurationSeconds: settings.defaultExposureDurationSeconds,
         sessionLevelMap,
       });
@@ -216,6 +220,33 @@ export default function Protocol() {
 
       <section className="rd-card">
         <h2 className="section-title" style={{ marginTop: 0 }}>Session Schedule &amp; Timing</h2>
+        <div className="field-block">
+          <label className="field-label">Study opens on (Baseline Assessment + Session 1)</label>
+          <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
+            Set the date the study becomes available to participants. Before this date, anyone who enters a
+            participant code and reaches the baseline assessment (which includes the first GAD-7) or Session 1 will
+            instead see a message stating the date the study opens &mdash; they won&rsquo;t be able to start early.
+            Leave blank to let participants start as soon as they enroll.
+          </p>
+          <div className="rd-row">
+            <input
+              type="date"
+              value={settings.studyOpenDate || ''}
+              onChange={(e) => setSettings((s) => ({ ...s, studyOpenDate: e.target.value }))}
+              style={{ flex: '1 1 180px' }}
+            />
+            {settings.studyOpenDate && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ width: 'auto' }}
+                onClick={() => setSettings((s) => ({ ...s, studyOpenDate: '' }))}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
         <div className="rd-grid-2">
           <div className="field-block">
             <label className="field-label">Number of sessions</label>
@@ -235,71 +266,132 @@ export default function Protocol() {
           </div>
         </div>
         <div className="field-block">
-          <label className="field-label">Session availability dates</label>
+          <label className="field-label">How Session 2 onward (and the final assessment) unlock</label>
           <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
-            Set the calendar date each session unlocks for every participant (instead of counting days since their
-            last session). Leave a session blank to fall back to a fixed number of days after the previous session
-            instead.
+            Session 1 always starts right after the baseline assessment &mdash; this choice only affects what happens
+            after that. It never changes the Study Open Date above.
           </p>
-          {Array.from({ length: Math.max(0, (Number(settings.numSessions) || 1) - 1) }, (_, i) => i + 2).map(
-            (sessionNum) => (
-              <div key={sessionNum} className="rd-row">
-                <label style={{ flex: '1 1 140px' }}>Session {sessionNum} unlocks on</label>
+          <div className="rd-row" style={{ gap: 18 }}>
+            <label className="rd-inline-check">
+              <input
+                type="radio"
+                name="sessionTimingMode"
+                checked={(settings.sessionTimingMode || 'calendar') === 'calendar'}
+                onChange={() => setSettings((s) => ({ ...s, sessionTimingMode: 'calendar' }))}
+              />
+              Fixed calendar dates
+            </label>
+            <label className="rd-inline-check">
+              <input
+                type="radio"
+                name="sessionTimingMode"
+                checked={settings.sessionTimingMode === 'rolling'}
+                onChange={() => setSettings((s) => ({ ...s, sessionTimingMode: 'rolling' }))}
+              />
+              Rolling window after each session
+            </label>
+          </div>
+        </div>
+
+        {settings.sessionTimingMode === 'rolling' ? (
+          <div className="field-block">
+            <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
+              As soon as a participant finishes a session, the next one (or the final assessment, after the last
+              regular session) unlocks the minimum number of hours below later, and stays open for the maximum number
+              of hours after that before it closes. Participants are shown both numbers at the start and end of each
+              session, and on the waiting screen in between.
+            </p>
+            <div className="rd-grid-2">
+              <div className="field-block">
+                <label className="field-label">Unlocks this many hours after finishing the previous one (minimum)</label>
+                <input
+                  type="text"
+                  value={settings.rollingUnlockHours ?? 24}
+                  onChange={(e) => setSettings((s) => ({ ...s, rollingUnlockHours: e.target.value }))}
+                  style={{ maxWidth: 160 }}
+                />
+              </div>
+              <div className="field-block">
+                <label className="field-label">Stays open this many hours after it unlocks (maximum)</label>
+                <input
+                  type="text"
+                  value={settings.rollingWindowHours ?? 72}
+                  onChange={(e) => setSettings((s) => ({ ...s, rollingWindowHours: e.target.value }))}
+                  style={{ maxWidth: 160 }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="field-block">
+              <label className="field-label">Session availability dates</label>
+              <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
+                Set the calendar date each session unlocks for every participant (instead of counting days since their
+                last session). Leave a session blank to fall back to a fixed number of days after the previous session
+                instead.
+              </p>
+              {Array.from({ length: Math.max(0, (Number(settings.numSessions) || 1) - 1) }, (_, i) => i + 2).map(
+                (sessionNum) => (
+                  <div key={sessionNum} className="rd-row">
+                    <label style={{ flex: '1 1 140px' }}>Session {sessionNum} unlocks on</label>
+                    <input
+                      type="date"
+                      value={(settings.sessionSchedule && settings.sessionSchedule[String(sessionNum)]) || ''}
+                      onChange={(e) => updateScheduleDate(sessionNum, e.target.value)}
+                      style={{ flex: '1 1 180px' }}
+                    />
+                    {settings.sessionSchedule && settings.sessionSchedule[String(sessionNum)] && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ width: 'auto' }}
+                        onClick={() => clearScheduleDate(sessionNum)}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                )
+              )}
+              <label className="field-label" style={{ marginTop: 14 }}>
+                Fallback: days after previous session (used only for sessions with no date set above)
+              </label>
+              <input
+                type="text"
+                value={settings.daysBetweenSessions}
+                onChange={(e) => setSettings((s) => ({ ...s, daysBetweenSessions: e.target.value }))}
+                style={{ maxWidth: 160 }}
+              />
+            </div>
+            <div className="field-block">
+              <label className="field-label">Final assessment (GAD-7 wrap-up) date</label>
+              <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
+                Set this so the final assessment opens on its own date, separate from whatever date the last session
+                (Session {Math.max(1, Number(settings.numSessions) || 1)}) unlocks on. Leave it blank to have the final
+                assessment open immediately once the last session is completed.
+              </p>
+              <div className="rd-row">
                 <input
                   type="date"
-                  value={(settings.sessionSchedule && settings.sessionSchedule[String(sessionNum)]) || ''}
-                  onChange={(e) => updateScheduleDate(sessionNum, e.target.value)}
+                  value={settings.finalAssessmentDate || ''}
+                  onChange={(e) => setSettings((s) => ({ ...s, finalAssessmentDate: e.target.value }))}
                   style={{ flex: '1 1 180px' }}
                 />
-                {settings.sessionSchedule && settings.sessionSchedule[String(sessionNum)] && (
+                {settings.finalAssessmentDate && (
                   <button
                     type="button"
                     className="btn btn-secondary"
                     style={{ width: 'auto' }}
-                    onClick={() => clearScheduleDate(sessionNum)}
+                    onClick={() => setSettings((s) => ({ ...s, finalAssessmentDate: '' }))}
                   >
                     Clear
                   </button>
                 )}
               </div>
-            )
-          )}
-          <label className="field-label" style={{ marginTop: 14 }}>
-            Fallback: days after previous session (used only for sessions with no date set above)
-          </label>
-          <input
-            type="text"
-            value={settings.daysBetweenSessions}
-            onChange={(e) => setSettings((s) => ({ ...s, daysBetweenSessions: e.target.value }))}
-            style={{ maxWidth: 160 }}
-          />
-        </div>
-        <div className="field-block">
-          <label className="field-label">Final assessment (GAD-7 wrap-up) date</label>
-          <p className="lead" style={{ fontSize: '0.85rem', marginTop: 0 }}>
-            Set this so the final assessment opens on its own date, separate from whatever date the last session
-            (Session {Math.max(1, Number(settings.numSessions) || 1)}) unlocks on. Leave it blank to have the final
-            assessment open immediately once the last session is completed.
-          </p>
-          <div className="rd-row">
-            <input
-              type="date"
-              value={settings.finalAssessmentDate || ''}
-              onChange={(e) => setSettings((s) => ({ ...s, finalAssessmentDate: e.target.value }))}
-              style={{ flex: '1 1 180px' }}
-            />
-            {settings.finalAssessmentDate && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ width: 'auto' }}
-                onClick={() => setSettings((s) => ({ ...s, finalAssessmentDate: '' }))}
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
         <div className="field-block">
           <label className="field-label">
             Which exposure level(s) appear in each session number (JSON: session number → array of levels 1-5)

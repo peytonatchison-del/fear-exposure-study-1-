@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import AssessmentForm from '../components/AssessmentForm.jsx';
 import { useStudy } from '../context/StudyContext.jsx';
@@ -13,6 +13,7 @@ const GAD7_HIGH_SCORE_THRESHOLD = 15;
 
 export default function Baseline() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { participant, protocol, categoryName, clearParticipant } = useStudy();
   const [busy, setBusy] = useState(false);
   // null = still filling out the form. Once submitted with a GAD-7 total
@@ -23,8 +24,44 @@ export default function Baseline() {
   const [view, setView] = useState(null);
   const [stopping, setStopping] = useState(false);
 
-  if (!participant) {
-    navigate('/participant-code');
+  // The researcher can set a single date that gates the whole study open —
+  // baseline (including the first GAD-7) and Session 1 both wait for it, so
+  // a participant can never jump in before the date the researcher chose.
+  // The demo-mode "Skip wait" button on the between-sessions screen passes
+  // ?skipWait=1 so a demo run isn't bounced right back here.
+  const skippingWait = !!participant?.isDemo && searchParams.get('skipWait') === '1';
+  let gateAvailableAt = null;
+  if (participant && protocol?.studyOpenDate && !skippingWait) {
+    // No "Z" — local midnight in the participant's own browser, not UTC
+    // midnight, so the study always opens at 12:00 AM on the chosen date
+    // for whoever is looking at the screen.
+    const availableAt = new Date(`${protocol.studyOpenDate}T00:00:00`).getTime();
+    if (Number.isFinite(availableAt) && Date.now() < availableAt) {
+      gateAvailableAt = availableAt;
+    }
+  }
+
+  // Redirects happen in an effect, after this component has actually
+  // mounted, rather than directly in the render body. Calling navigate()
+  // straight from render — especially right on the heels of the navigate()
+  // that brought a participant to this screen in the first place, e.g.
+  // finishing category selection — can collide with React still committing
+  // the previous navigation, which silently crashes the whole app (a blank
+  // white page with no visible error) instead of showing anything. Routing
+  // through an effect avoids that entirely; the participant sees the exact
+  // same instant blank-then-redirect either way.
+  useEffect(() => {
+    if (!participant) {
+      navigate('/participant-code');
+      return;
+    }
+    if (gateAvailableAt !== null) {
+      navigate(`/between-sessions?availableAt=${gateAvailableAt}&session=baseline`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [participant, gateAvailableAt]);
+
+  if (!participant || gateAvailableAt !== null) {
     return null;
   }
 

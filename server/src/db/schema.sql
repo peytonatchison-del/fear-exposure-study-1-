@@ -98,6 +98,27 @@ CREATE TABLE IF NOT EXISTS session_log (
   UNIQUE(participant_id, session_number)
 );
 
+-- A participant's request for more time on a session/final assessment whose
+-- rolling (24h-unlock / 72h-window) window has already closed on them.
+-- session_label holds a session number as text ("2", "3", "4") or "final" —
+-- matching the ?session= value the client already uses elsewhere, since the
+-- final assessment has no session_number row of its own in session_log.
+-- granted_hours is only set once a researcher approves the request (the
+-- dashboard collects "days", converted to hours here for the same units the
+-- rest of the timing settings use); approved requests for the same
+-- participant+session stack additively if more than one is ever granted.
+CREATE TABLE IF NOT EXISTS extension_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  participant_id INTEGER NOT NULL REFERENCES participants(id) ON DELETE CASCADE,
+  session_label TEXT NOT NULL,
+  note TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'denied')),
+  granted_hours INTEGER,
+  requested_at TEXT NOT NULL DEFAULT (datetime('now')),
+  decided_at TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_exposure_participant ON exposure_responses(participant_id);
 CREATE INDEX IF NOT EXISTS idx_assessments_participant ON assessments(participant_id);
 CREATE INDEX IF NOT EXISTS idx_stimuli_category_level ON stimuli(category_id, level);
+CREATE INDEX IF NOT EXISTS idx_extension_requests_participant ON extension_requests(participant_id);

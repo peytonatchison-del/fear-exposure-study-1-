@@ -1,4 +1,4 @@
-# Online Fear Exposure Research Study — Data Collection Platform
+# Online Stressor Exposure Research Study — Data Collection Platform
 
 A web application built for a high-school science-fair research project studying whether a
 standardized, online exposure-based protocol is associated with changes in self-reported fear.

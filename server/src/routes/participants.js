@@ -84,4 +84,56 @@ router.post('/participants/:code/withdraw', (req, res) => {
   res.json({ ok: true });
 });
 
+function publicExtensionRequest(row) {
+  return {
+    id: row.id,
+    sessionLabel: row.session_label,
+    note: row.note || '',
+    status: row.status,
+    grantedHours: row.granted_hours,
+    requestedAt: row.requested_at,
+    decidedAt: row.decided_at,
+  };
+}
+
+// Every extension request this participant has ever filed, across all
+// sessions — the "Session Window Closed" screen filters this down to the
+// one session it cares about, rather than needing a separate endpoint per
+// session.
+router.get('/participants/:code/extension-requests', (req, res) => {
+  const participant = db.prepare('SELECT id FROM participants WHERE study_code = ?').get(req.params.code.toUpperCase());
+  if (!participant) return res.status(404).json({ error: 'Participant not found.' });
+  const rows = db
+    .prepare('SELECT * FROM extension_requests WHERE participant_id = ? ORDER BY requested_at DESC')
+    .all(participant.id);
+  res.json(rows.map(publicExtensionRequest));
+});
+
+// Files a new "please give me more time" request for one specific session
+// (sessionLabel is a session number as a string, or "final"). Reached from
+// the participant-facing Session Window Closed screen. Blocked while a
+// request for that same session is still pending, so someone can't spam
+// in a dozen duplicates while waiting on the first one.
+router.post('/participants/:code/extension-requests', (req, res) => {
+  const { sessionLabel, note } = req.body || {};
+  if (!sessionLabel || typeof sessionLabel !== 'string') {
+    return res.status(400).json({ error: 'sessionLabel is required.' });
+  }
+  const participant = db.prepare('SELECT id FROM participants WHERE study_code = ?').get(req.params.code.toUpperCase());
+  if (!participant) return res.status(404).json({ error: 'Participant not found.' });
+
+  const existingPending = db
+    .prepare(`SELECT id FROM extension_requests WHERE participant_id = ? AND session_label = ? AND status = 'pending'`)
+    .get(participant.id, sessionLabel);
+  if (existingPending) {
+    return res.status(409).json({ error: 'A request for this session is already pending.' });
+  }
+
+  const info = db
+    .prepare('INSERT INTO extension_requests (participant_id, session_label, note) VALUES (?, ?, ?)')
+    .run(participant.id, sessionLabel, (note || '').toString().slice(0, 500) || null);
+  const row = db.prepare('SELECT * FROM extension_requests WHERE id = ?').get(info.lastInsertRowid);
+  res.status(201).json(publicExtensionRequest(row));
+});
+
 export default router;

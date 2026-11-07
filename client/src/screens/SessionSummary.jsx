@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import { useStudy } from '../context/StudyContext.jsx';
 import useCountdown from '../hooks/useCountdown.js';
+import { formatDuration } from '../utils/formatDuration.js';
 
 // Short, researcher-written "before your next session" suggestions, tailored
 // per fear category. These are generic practice ideas, not individualized
@@ -57,15 +58,36 @@ export default function SessionSummary() {
     return null;
   }
 
+  const rolling = protocol?.sessionTimingMode === 'rolling';
+  const unlockHours = protocol?.rollingUnlockHours ?? 24;
+  const windowHours = protocol?.rollingWindowHours ?? 72;
+
   function handleContinue() {
     const numSessions = protocol?.numSessions || 1;
     const nextSession = sessionNumber + 1;
+    const nextLabel = sessionNumber >= numSessions ? 'final' : String(nextSession);
+
+    if (rolling) {
+      // The session that was just completed finished essentially right now,
+      // so the next one's window is computed straight off the current time
+      // rather than round-tripping to ask the server when it was marked
+      // complete.
+      const availableAt = Date.now() + unlockHours * 3600000;
+      const expiresAt = availableAt + windowHours * 3600000;
+      navigate(`/between-sessions?availableAt=${availableAt}&expiresAt=${expiresAt}&session=${nextLabel}`);
+      return;
+    }
+
     if (sessionNumber >= numSessions) {
       // The final assessment can be scheduled on its own date, independent
       // of the last regular session's date.
       const finalDate = protocol?.finalAssessmentDate;
       if (finalDate) {
-        const availableAt = new Date(`${finalDate}T00:00:00Z`).getTime();
+        // No "Z" here on purpose — parsed this way, the date string is
+        // local midnight in whoever's browser is running this code, not UTC
+        // midnight, so "available on this date" always means 12:00 AM that
+        // day for the person actually looking at the screen.
+        const availableAt = new Date(`${finalDate}T00:00:00`).getTime();
         if (Date.now() < availableAt) {
           navigate(`/between-sessions?availableAt=${availableAt}&session=final`);
           return;
@@ -78,7 +100,7 @@ export default function SessionSummary() {
     // takes priority over the legacy days-between-sessions countdown.
     const scheduledDate = protocol?.sessionSchedule?.[String(nextSession)];
     if (scheduledDate) {
-      const availableAt = new Date(`${scheduledDate}T00:00:00Z`).getTime();
+      const availableAt = new Date(`${scheduledDate}T00:00:00`).getTime(); // local midnight, see note above
       if (Date.now() < availableAt) {
         navigate(`/between-sessions?availableAt=${availableAt}&session=${nextSession}`);
         return;
@@ -104,6 +126,15 @@ export default function SessionSummary() {
           <strong>Before your next session:</strong>{' '}
           {CATEGORY_ADVICE[participant?.fearCategoryId] || DEFAULT_ADVICE}
         </div>
+
+        {rolling && (
+          <div className="disclaimer-banner" style={{ background: 'var(--surface-2)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+            <strong>Timing:</strong>{' '}
+            {sessionNumber >= (protocol?.numSessions || 1)
+              ? `Your final assessment will unlock ${formatDuration(unlockHours)} from now, and will stay open for ${formatDuration(windowHours)} after it unlocks.`
+              : `Session ${sessionNumber + 1} will unlock ${formatDuration(unlockHours)} from now, and will stay open for ${formatDuration(windowHours)} after it unlocks.`}
+          </div>
+        )}
 
         <p className="sim-portal-hint">{ready ? 'You may continue.' : `You can continue in ${secondsLeft}s`}</p>
         <div className="btn-row">
