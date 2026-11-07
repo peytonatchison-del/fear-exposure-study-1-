@@ -1165,37 +1165,115 @@ label.field-label { display: block; font-weight: 600; margin-bottom: 6px; }
 .sim-gradebook-row:last-of-type { border-bottom: none; }
 
 /* Traditional click-table for the standardized questionnaire (GAD-7) —
-   replaces plain sliders with rows of question text and clickable circular
-   radio cells across the 4 standard frequency options. */
-.qtable-wrap { overflow-x: auto; margin: 4px 0 20px; }
+   rows of question text and clickable circular radio cells across the 4
+   standard frequency options.
+
+   Mobile-first, like the rest of this stylesheet: the table's natural
+   column widths (a question-text column plus 4 option columns) need more
+   room than a phone screen has, which used to force sideways scrolling to
+   see every answer choice. So the DEFAULT layout below is a stacked list —
+   one full-width card per question, each option on its own full-width row
+   with its label right on the button — which needs no scrolling at all on
+   a phone. From qtable-table-bp up (plenty of room for the compact grid),
+   it switches back to the traditional table with the option labels in the
+   header row instead of on every button. */
+.qtable-wrap { margin: 4px 0 20px; }
 .qtable { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-.qtable th,
+
+/* ---- default (phone): stacked cards, no table chrome, no scrolling ---- */
+.qtable thead { display: none; }
+.qtable,
+.qtable tbody,
+.qtable tr,
 .qtable td {
-  padding: 10px 8px;
-  text-align: center;
+  display: block;
+  width: 100%;
+}
+.qtable tr {
+  padding: 14px 0 16px;
   border-bottom: 1px solid var(--border);
 }
-.qtable-qcol { min-width: 40px; }
-.qtable-opt-head { color: var(--text-secondary); font-weight: 600; min-width: 92px; }
-.qtable-qtext { text-align: left; color: var(--text-primary); font-weight: 500; padding-right: 16px; min-width: 200px; }
-.qtable-cell { vertical-align: middle; }
+.qtable tr:first-child { padding-top: 0; }
+.qtable tr:last-child { border-bottom: none; padding-bottom: 0; }
+.qtable th,
+.qtable td { padding: 0; border-bottom: none; text-align: left; }
+.qtable-qtext {
+  color: var(--text-primary);
+  font-weight: 500;
+  padding-bottom: 10px !important;
+}
+.qtable-cell { padding: 4px 0 !important; }
 .qtable-radio {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
   border: 2px solid var(--border);
   background: var(--surface);
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 12px;
   cursor: pointer;
-  padding: 0;
+  padding: 10px 14px;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .qtable-radio:hover { border-color: var(--accent); }
 .qtable-radio.is-selected { border-color: var(--accent); background: var(--accent); }
-.qtable-radio-dot { width: 10px; height: 10px; border-radius: 50%; background: transparent; }
-.qtable-radio.is-selected .qtable-radio-dot { background: #fff; }
+.qtable-radio-dot {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.qtable-radio.is-selected .qtable-radio-dot { border-color: #fff; background: #fff; }
+.qtable-radio-label { font-size: 0.92rem; color: var(--text-primary); }
+.qtable-radio.is-selected .qtable-radio-label { color: #fff; }
+
+/* ---- qtable-table-bp and up: room for the compact grid, so switch back
+   to the traditional table-with-header-row layout ---- */
+@media (min-width: 680px) {
+  .qtable-wrap { overflow-x: auto; }
+  .qtable thead { display: table-header-group; }
+  .qtable,
+  .qtable tbody,
+  .qtable tr,
+  .qtable td { display: revert; width: revert; }
+  .qtable th,
+  .qtable td {
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .qtable tr { padding: 0; border-bottom: none; }
+  .qtable-qcol { min-width: 40px; }
+  .qtable-opt-head { color: var(--text-secondary); font-weight: 600; min-width: 92px; }
+  .qtable-qtext {
+    text-align: left;
+    font-weight: 500;
+    padding-right: 16px !important;
+    padding-bottom: 10px !important;
+    min-width: 200px;
+  }
+  .qtable-cell { vertical-align: middle; padding: 10px 8px !important; }
+  .qtable-radio {
+    width: 26px;
+    height: 26px;
+    min-height: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
+  .qtable-radio-dot { width: 10px; height: 10px; border: none; }
+  /* The header row already names each option at this width, so the
+     per-button label from the phone layout would be redundant. */
+  .qtable-radio-label { display: none; }
+}
 
 .error-text { color: var(--danger); font-size: 0.9rem; margin-top: 6px; }
 

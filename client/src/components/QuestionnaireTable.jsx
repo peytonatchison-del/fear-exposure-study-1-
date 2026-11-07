@@ -41,6 +41,13 @@ export default function QuestionnaireTable({ items, answers, onChange }) {
                     onClick={() => onChange(q.id, opt.value)}
                   >
                     <span className="qtable-radio-dot" aria-hidden="true" />
+                    {/* Hidden on wider screens (the column header already
+                        names each option there); shown on phones, where the
+                        table collapses into a stacked, full-width list per
+                        question — see the .qtable-radio-label rule. */}
+                    <span className="qtable-radio-label" aria-hidden="true">
+                      {opt.label}
+                    </span>
                   </button>
                 </td>
               ))}
